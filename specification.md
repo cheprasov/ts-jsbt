@@ -2,9 +2,9 @@
 JavaScript Byte Translation
 
 ## Structure
-1-st byte define value.
+1-st byte describe value:
 - 4 bits is for value type
-- 4 bits is for value sub-type or byte length
+- 4 bits is for service
 
 |   1-st byte       ||
 |---------|----------|
@@ -13,20 +13,20 @@ JavaScript Byte Translation
 
 ## 1. Types
 
-`0000` - Predefined Constants \
-`0001` - Strings \
-`0010` - Integers \
-`0011` - Floats \
-`?` - BigInts \
-`?` - Symbols \
-`?` - Objects \
-`?` - Arrays \
-`?` - Maps \
-`?` - Sets \
-`?` - Combined strings \
-`?` - Refs \
-`?` -  \
-`1111` - 'Additional types'
+`0000` - Predefined Constants  
+`0001` - Strings  
+`0010` - Integers  
+`0011` - Floats  
+`0100` - BigInts
+`?` - Arrays  
+`?` - Sets  
+`?` - Objects  
+`?` - Maps  
+`?` - Symbols  
+`?` - Combined strings
+`?` - Refs  
+`?` -   
+`1111` - Additional types
 
 ## 2. Predefined Constants `[0000]`
 type: `0000` <br>
@@ -60,7 +60,7 @@ __Note:__
 - UTF-16 scheme
 
 __Examples:__
-| string  | type   | sub-type | length / bytes    | excoding bytes |
+| string  | type   | sub-type | length / bytes    | encoding bytes |
 |---------|--------|----------|-------------------|----------------|
 |\<empty> | `0001` | `0000`   |                   |                |
 |"`Alex`" | `0001` | `0001`   | 4 <br> `00000100` | `01000001` `01101100` `01100101` `01111000`|
@@ -133,3 +133,30 @@ __Examples:__
 | NaN                | `0011` | `1`      | `001`        | `11111111` `11111000` |
 | 17.75              | `0011` | `1`      | `010`        | `01000000` `00110001` `11000000` |
 | 5e-324             | `0011` | `0`      | `000`        | `00000001` |
+
+## 5. BigInt `[0100]`
+type: `0100` <br>
+sub-type 4 bits:
++ 1 bit for sign:
+    - `0` - positive number
+    - `1` - negative number
++ 3 bits for amount length bytes:
+    - `000` - `0n`.
+    - `001` - 1 byte for length (from 1 to 255 bytes length).
+    - `010` - 2 bytes for length (from 256 to 65,535 bytes)
+    - `011` - 3 bytes for length (from 65536 to 1,677,7215 bytes)
+    - ...
+    - `111` - 7 bytes for length (up to 65,536 terabytes length)
+
+__Note:__
+- It is Big-Endian byte ordering (`0x12345678` => `12 34 56 78`)
+
+__Examples:__
+| BigInt                | type   | sing | length | length / bytes    | encoding bytes |
+|-----------------------|--------|------|--------|-------------------|----------------|
+| `0n`                  | `0100` | `0`  | `000`  |                   |                |
+| `1n`                  | `0100` | `0`  | `001`  | `00000001`        | `00000001`     |
+|`-1n`                  | `0100` | `1`  | `001`  | `00000001`        | `00000001`     |
+| `257n`                | `0100` | `0`  | `001`  | `00000010`        | `10000000` `00000001` |
+|`-257n`                | `0100` | `1`  | `001`  | `00000010`        | `10000000` `00000001` |
+|`12345678901234567890n`| `0100` | `0`  | `001`  | `00000100`        | `10101011` `01010100` `10101001` `10001100` `11101011` `00011111` `00001010` `11010010` |
