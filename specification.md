@@ -17,7 +17,7 @@ JavaScript Byte Translation
 `0001` - Strings  
 `0010` - Integers  
 `0011` - Floats  
-`0100` - BigInts
+`0100` - BigInts  
 `0101` - Arrays  
 `?` - Typed Arrays  
 `?` - Sets  
