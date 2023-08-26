@@ -11,14 +11,15 @@ JavaScript Byte Translation
 | type    | sub-type |
 | `0000`  | `0000`   |
 
-## 1. Types
+## 1. Suported Types
 
 `0000` - Predefined Constants  
 `0001` - Strings  
 `0010` - Integers  
 `0011` - Floats  
 `0100` - BigInts
-`?` - Arrays  
+`0101` - Arrays  
+`?` - Typed Arrays  
 `?` - Sets  
 `?` - Objects  
 `?` - Maps  
@@ -160,3 +161,27 @@ __Examples:__
 | `257n`                | `0100` | `0`  | `001`  | `00000010`        | `10000000` `00000001` |
 |`-257n`                | `0100` | `1`  | `001`  | `00000010`        | `10000000` `00000001` |
 |`12345678901234567890n`| `0100` | `0`  | `001`  | `00000100`        | `10101011` `01010100` `10101001` `10001100` `11101011` `00011111` `00001010` `11010010` |
+
+## 6. Arrays `[0101]`
+type: `0101` <br>
+sub-type 4 bits:
++ 1 bit reserved:
+    - `0` - untyped array
++ 3 bits for amount length bytes:
+    - `000` - empty string.
+    - `001` - 1 byte for length (from 1 to 255 items length).
+    - `010` - 2 bytes for length (from 256 to 65,535  items length)
+    - `011` - 3 bytes for length (from 65536 to 1,677,7215 items length)
+    - ...
+    - `111` - 7 bytes for length (up to 256^7 items length)
+
+__Note:__
+- Array can include any supported types (arrays, objects, numbers and so on)
+- Max count of items is 256^7
+
+
+__Examples:__
+| array   | type   | sub-type | length / bytes    | encoding bytes |
+|---------|--------|----------|-------------------|----------------|
+|\<empty> | `0101` | `0000`   |                   |                |
+|
