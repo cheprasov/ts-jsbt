@@ -166,12 +166,12 @@ __Examples:__
 type: `0101` <br>
 sub-type 4 bits:
 + 1 bit reserved:
-    - `0` - untyped array
-+ 3 bits for amount length bytes:
+    - `0`
++ 3 bits for amount bytes for array length:
     - `000` - empty string.
-    - `001` - 1 byte for length (from 1 to 255 items length).
-    - `010` - 2 bytes for length (from 256 to 65,535  items length)
-    - `011` - 3 bytes for length (from 65536 to 1,677,7215 items length)
+    - `001` - 1 byte for length (from 1 to 255 items).
+    - `010` - 2 bytes for length (from 256 to 65,535 items)
+    - `011` - 3 bytes for length (from 65536 to 1,677,7215 items)
     - ...
     - `111` - 7 bytes for length (up to 256^7 items length)
 
@@ -181,7 +181,12 @@ __Note:__
 
 
 __Examples:__
-| array   | type   | sub-type | length / bytes    | encoding bytes |
-|---------|--------|----------|-------------------|----------------|
-|\<empty> | `0101` | `0000`   |                   |                |
-|
+| array                    | type   | reserved | bytes length | array length   | encoding bytes |
+|--------------------------|--------|----------|--------------|----------------| ---------------|
+| empty []                 | `0101` | `0`      | `000`        |                |                |
+| [1, 2, 3]                | `0101` | `0`      | `001`        | `00000011`     | `<Integer 1>` `<Integer 2>` `<Integer 3>` |
+| [4]                      | `0101` | `0`      | `001`        | `00000001`     | `<Integer 4>` |
+| [5, 6]                   | `0101` | `0`      | `001`        | `00000010`     | `<Integer 5> <Integer 6>` |
+| ['Alex', 42, 3.14, true] | `0101` | `0`      | `001`        | `00000100`     | `<String Alex>` `<Integer 42>` `<Float 3.14>` `<Boolean TRUE>` |
+| [[1, 2, 3], [4], [5, 6]] | `0101` | `0`      | `001`        | `00000011`     | `<Array [1, 2, 3]>` `<Array [4]>` `<Array [5, 6]>` |
+
