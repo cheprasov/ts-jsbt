@@ -165,8 +165,9 @@ __Examples:__
 ## 6. Arrays `[0101]`
 type: `0101` <br>
 sub-type 4 bits:
-+ 1 bit reserved:
-    - `0`
++ 1 bit for sparse array type:
+    - `0` - not sparse array
+    - `1` - sparse array (could have empty elements)
 + 3 bits for amount bytes for array length:
     - `000` - empty string.
     - `001` - 1 byte for length (from 1 to 255 items).
@@ -179,14 +180,21 @@ __Note:__
 - Array can include any supported types (arrays, objects, numbers and so on)
 - Max count of items is 256^7
 
+__Sparse arrays:__
+- Sparse Arrays use twice more bytes at 'array length' field.
+  + first half bytes for array length
+  + following half bytes for count of not empty items
+- Not empty values of sparse arrays should be encoded with item index bofore a value
+- Empty values are skipped from encoding
 
 __Examples:__
-| array                    | type   | reserved | bytes length | array length   | encoding bytes |
-|--------------------------|--------|----------|--------------|----------------| ---------------|
-| empty []                 | `0101` | `0`      | `000`        |                |                |
-| [1, 2, 3]                | `0101` | `0`      | `001`        | `00000011`     | `<Integer 1>` `<Integer 2>` `<Integer 3>` |
-| [4]                      | `0101` | `0`      | `001`        | `00000001`     | `<Integer 4>` |
-| [5, 6]                   | `0101` | `0`      | `001`        | `00000010`     | `<Integer 5> <Integer 6>` |
-| ['Alex', 42, 3.14, true] | `0101` | `0`      | `001`        | `00000100`     | `<String Alex>` `<Integer 42>` `<Float 3.14>` `<Boolean TRUE>` |
-| [[1, 2, 3], [4], [5, 6]] | `0101` | `0`      | `001`        | `00000011`     | `<Array [1, 2, 3]>` `<Array [4]>` `<Array [5, 6]>` |
-
+| array                    | type   | sparse | bytes length | array length   | encoding bytes |
+|--------------------------|--------|--------|--------------|----------------| ---------------|
+| empty []                 | `0101` | `0`    | `000`        |                |                |
+| [1, 2, 3]                | `0101` | `0`    | `001`        | `00000011`     | `<Integer 1>` `<Integer 2>` `<Integer 3>` |
+| [4]                      | `0101` | `0`    | `001`        | `00000001`     | `<Integer 4>` |
+| [5, 6]                   | `0101` | `0`    | `001`        | `00000010`     | `<Integer 5> <Integer 6>` |
+| ['Alex', 42, 3.14, true] | `0101` | `0`    | `001`        | `00000100`     | `<String Alex>` `<Integer 42>` `<Float 3.14>` `<Boolean TRUE>` |
+| [[1, 2, 3], [4], [5, 6]] | `0101` | `0`    | `001`        | `00000011`     | `<Array [1, 2, 3]>` `<Array [4]>` `<Array [5, 6]>` |
+| [12, , 32, 42]           | `0101` | `1`    | `001`        | `00000100` `00000011` | `<Integer 0>` `<Integer 12>` `<Integer 2>` `<Integer 32>` `<Integer 3>` `<Integer 42>` |
+| [ , , , , , 100]         | `0101` | `1`    | `001`        | `00000110` `00000001` | `<Integer 5>` `<Integer 100>` |
