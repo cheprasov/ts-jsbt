@@ -7,3 +7,6 @@ export const doubleToBytes = (value: number, bigEndianOrder = true ): TUint8 => 
     const bytes = Array.from(new Uint8Array(buffer));
     return (bigEndianOrder ? bytes.reverse() : bytes) as TUint8;
 }
+
+
+console.log(doubleToBytes(10));
