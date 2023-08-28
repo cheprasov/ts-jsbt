@@ -19,7 +19,7 @@ JavaScript Byte Translation
 `0011` - Floats  
 `0100` - BigInts  
 `0101` - Arrays  
-`?` - Typed Arrays  
+`0110` - Typed Arrays  
 `?` - Sets  
 `?` - Objects  
 `?` - Maps  
@@ -166,19 +166,19 @@ __Examples:__
 type: `0101` <br>
 sub-type 4 bits:
 + 1 bit for sparse array type:
-    - `0` - not sparse array
-    - `1` - sparse array (could have empty elements)
+    - `0` - dense array
+    - `1` - sparse array (has empty elements)
 + 3 bits for amount bytes for array length:
     - `000` - empty string.
     - `001` - 1 byte for length (from 1 to 255 items).
     - `010` - 2 bytes for length (from 256 to 65,535 items)
     - `011` - 3 bytes for length (from 65536 to 1,677,7215 items)
     - ...
-    - `111` - 7 bytes for length (up to 256^7 items length)
+    - `111` - 7 bytes for length (up to 256<sup>7</sup> items length)
 
 __Note:__
 - Array can include any supported types (arrays, objects, numbers and so on)
-- Max count of items is 256^7
+- Max count of items is 256<sup>7</sup>
 
 __Sparse arrays:__
 - Sparse Arrays use twice more bytes at 'array length' field.
@@ -196,5 +196,45 @@ __Examples:__
 | [5, 6]                   | `0101` | `0`    | `001`        | `00000010`     | `<Integer 5> <Integer 6>` |
 | ['Alex', 42, 3.14, true] | `0101` | `0`    | `001`        | `00000100`     | `<String Alex>` `<Integer 42>` `<Float 3.14>` `<Boolean TRUE>` |
 | [[1, 2, 3], [4], [5, 6]] | `0101` | `0`    | `001`        | `00000011`     | `<Array [1, 2, 3]>` `<Array [4]>` `<Array [5, 6]>` |
-| [12, , 32, 42]           | `0101` | `1`    | `001`        | `00000100` `00000011` | `<Integer 0>` `<Integer 12>` `<Integer 2>` `<Integer 32>` `<Integer 3>` `<Integer 42>` |
-| [ , , , , , 100]         | `0101` | `1`    | `001`        | `00000110` `00000001` | `<Integer 5>` `<Integer 100>` |
+| [12, , 32, 42]           | `0101` | `1`    | `001` (x2)   | `00000100` `00000011` | `<Integer 0>` `<Integer 12>` `<Integer 2>` `<Integer 32>` `<Integer 3>` `<Integer 42>` |
+| [ , , , , , 100]         | `0101` | `1`    | `001` (x2)   | `00000110` `00000001` | `<Integer 5>` `<Integer 100>` |
+
+## 7. Typed Arrays `[0110]`
+type: `0110` <br>
+sub-type 4 bits:
++ 4 bits for TypedArray type:
+  - `0000` - `ArrayBuffer`
+  - `0001` - `Int8Array` (8-bit signed integer, -128 to 127)
+  - `0010` - `Uint8Array` (8-bit unsigned integer, 0 to 255)
+  - `0011` - `Uint8ClampedArray` (8-bit unsigned integer (clamped), 0 to 255)
+  - `0100` - `Int16Array` (16-bit two's complement signed integer, -32768 to 32767)
+  - `0101` - `Uint16Array` (16-bit unsigned integer, 0 to 65535)
+  - `0110` - `Int32Array` (32-bit two's complement signed integer, -2147483648 to 2147483647)
+  - `0111` - `Uint32Array` (32-bit unsigned integer, 0 to 4294967295)
+  - `1000` - `Float32Array` (32-bit IEEE floating point number, -3.4E38 to 3.4E38 and 1.2E-38 is the min positive number)
+  - `1001` - `Float64Array` (64-bit IEEE floating point number, -1.8E308 to 1.8E308 and 5E-324 is the min positive number)
+  - `1010` - `BigInt64Array` (64-bit two's complement signed integer, -2<sup>63</sup> to 2<sup>63</sup> - 1)
+  - `1011` - `BigUint64Array` (64-bit unsigned integer, 0 to 2<sup>64</sup> - 1)
+
+Additional 1 byte for parameters:
+  - 1 bit for various size:
+    + `0` - each value uses same amount of bytes
+    + `1` - each value uses individual size of bytes (encoded like a separate type)
+  - 1 bit for sparse array type:
+    - `0` - dense array
+    - `1` - sparse array (has empty elements)
+  - 3 bits for length bytes
+  - 3 bits for items count
+
+
+__Note:__
+
+__Sparse arrays:__
+- Not empty values of sparse arrays should be encoded with item index bofore a value
+- Empty values are skipped from encoding
+
+__Examples:__
+| typed array                    | type   | typed array | various | sparse | length | items   | encoding bytes |
+|--------------------------------|--------|-------------|---------|--------|--------|---------| ---------------|
+| empty `Int8Array([])`          | `0110` | `0001`      | `0`     | `0`    | `000`  | `0000`  |                |
+| empty `Uint32Array([])`        | `0110` | `0111`      | `0`     | `0`    | `000`  | `0000`  |                |
