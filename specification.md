@@ -20,14 +20,15 @@ JavaScript Byte Translation
 `0100` - BigInts  
 `0101` - Arrays  
 `0110` - Typed Arrays  
-`?` - Sets  
-`?` - Objects  
-`?` - Maps  
-`?` - Symbols  
-`?` - Combined strings
-`?` - Refs  
-`?` -   
-`1111` - Additional types
+`? 0111` - Sets  
+`? 1000` - Objects  
+`? 1001` - Maps  
+`? 1010` - Symbols  
+`? 1011` - ? Combined strings 
+`? 1100` - Refs  
+`? 1101` - ?  
+`1110` - Additional types  
+`1111` - Instructions  
 
 ## 2. Predefined Constants `[0000]`
 type: `0000` <br>
@@ -76,11 +77,11 @@ sub-type 4 bits:
     - `1` - negative number
 + 3 bits for amount of encoding bytes:
     - `000` - 0 (zero).
-    - `001` - 1 byte for length (from 1 to 255 bytes length string).
-    - `010` - 2 bytes for length (from 256 to 65,535 bytes)
-    - `011` - 3 bytes for length (from 65536 to 1,677,7215 bytes)
+    - `001` - 1 byte length (from 1 to 255).
+    - `010` - 2 bytes length (from 256 to 65,535)
+    - `011` - 3 bytes length (from 65536 to 1,677,7215)
     - ...
-    - `111` - 7 bytes for length (up to 65,536 terabytes length string)
+    - `111` - 7 bytes length (up to 256<sup>7</sup> - 1)
 
 __Note:__
 - It is Big-Endian byte ordering (`0x12345678` => `12` `34` `56` `78`)
@@ -219,22 +220,26 @@ sub-type 4 bits:
 Additional 1 byte for parameters:
   - 1 bit for various size:
     + `0` - each value uses same amount of bytes
-    + `1` - each value uses individual size of bytes (encoded like a separate type)
+    + `1` - each value uses various size of bytes (encoded like a separate type)
   - 1 bit for sparse array type:
-    - `0` - dense array
-    - `1` - sparse array (has empty elements)
+    + `0` - dense array
+    + `1` - sparse array (has empty elements)
   - 3 bits for length bytes
+    + it should be `000` for various size array.
   - 3 bits for items count
 
-
 __Note:__
+- It is Little-Endian byte ordering (`0x78563412` => `12` `34` `56` `78`)
 
 __Sparse arrays:__
 - Not empty values of sparse arrays should be encoded with item index bofore a value
 - Empty values are skipped from encoding
 
 __Examples:__
-| typed array                    | type   | typed array | various | sparse | length | items   | encoding bytes |
-|--------------------------------|--------|-------------|---------|--------|--------|---------| ---------------|
-| empty `Int8Array([])`          | `0110` | `0001`      | `0`     | `0`    | `000`  | `0000`  |                |
-| empty `Uint32Array([])`        | `0110` | `0111`      | `0`     | `0`    | `000`  | `0000`  |                |
+| typed array                    | type   | typed array | various | sparse | length | items | len/count bytes | encoding bytes |
+|--------------------------------|--------|-------------|---------|--------|--------|-------| ----------------|----------------|
+| empty `Int8Array([])`          | `0110` | `0001`      | `0`     | `0`    | `000`  | `000` |                 |
+| empty `Uint32Array([])`        | `0110` | `0111`      | `0`     | `0`    | `000`  | `000` |                 |
+| `Int8Array([-1, 2, 3])`        | `0110` | `0001`      | `0`     | `0`    | `001`  | `001` | `00000011` `00000011` | `11111111` `00000010` `00000011` |
+| `Int16Array([258, 1, -3])`     | `0110` | `0100`      | `0`     | `0`    | `001`  | `001` | `00000110` `00000011` | `00000010` `00000001` `00000001` `00000000` `11111101` `11111111` |
+| `Int32Array([258, 1, -3])`     | `0110` | `0100`      | `1`     | `0`    | `000`  | `001` | `00000011`      | `<Integer 258>` `<Integer 1>` `<Integer -3>` |
