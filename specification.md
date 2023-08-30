@@ -1,6 +1,7 @@
 # Specification JSBT
 JavaScript Byte Translation
 
+
 ## Structure
 1-st byte describe value:
 - 4 bits is for value type
@@ -11,7 +12,8 @@ JavaScript Byte Translation
 | type    | sub-type |
 | `0000`  | `0000`   |
 
-## 1. Suported Types
+
+## Suported Types
 
 `0000` - Predefined Constants  
 `0001` - Strings  
@@ -20,17 +22,18 @@ JavaScript Byte Translation
 `0100` - BigInts  
 `0101` - Arrays  
 `0110` - Typed Arrays  
-`? 0111` - Sets  
-`? 1000` - Objects  
+`0111` - Objects  
+`? 1000` - Sets  
 `? 1001` - Maps  
 `? 1010` - Symbols  
-`? 1011` - ? Combined strings 
+`? 1011` - ?
 `? 1100` - Refs  
 `? 1101` - ?  
 `1110` - Additional types  
 `1111` - Instructions  
 
-## 2. Predefined Constants `[0000]`
+
+## 0. Predefined Constants `[0000]`
 type: `0000` <br>
 sub-type: defined constant
  - `0000` - bolean `FALSE`
@@ -45,7 +48,8 @@ sub-type: defined constant
 | `NULL`           | `0000` | `0010`   |
 | `Undefined`      | `0000` | `0011`   |
 
-## 3. Strings `[0001]`
+
+## 1. Strings `[0001]`
 type: `0001` <br>
 sub-type 4 bits:
 + 1 bit reserved:
@@ -69,7 +73,8 @@ __Examples:__
 |"`🇬🇧`"   | `0001` | `0001`   | 8 <br> `00001000` | `11011000.00111100` `11011101.11101100` `11011000.00111100` `11011101.11100111`|
 |"`I💖JS`"| `0001` | `0001`   | 7 <br> `00000111` | `01001001` `11011000.00111101` `11011100.10010110` `01001010` `01010011`|
 
-## 4. Integers `[0010]`
+
+## 2. Integers `[0010]`
 type: `0010` <br>
 sub-type 4 bits:
 + 1 bit for the sign:
@@ -101,7 +106,8 @@ __Examples:__
 | 9007199254740991  | `0010` | `0`  | `111`        | `00011111` `11111111` `11111111` `11111111` `11111111` `11111111` `11111111` |
 | -9007199254740991 | `0010` | `1`  | `111`        | `00011111` `11111111` `11111111` `11111111` `11111111` `11111111` `11111111` |
 
-## 4. Floats `[0011]`
+
+## 3. Floats `[0011]`
 type: `0011` <br>
 sub-type 4 bits:
 + 1 bit for byte ordering:
@@ -136,7 +142,8 @@ __Examples:__
 | 17.75              | `0011` | `1`      | `010`        | `01000000` `00110001` `11000000` |
 | 5e-324             | `0011` | `0`      | `000`        | `00000001` |
 
-## 5. BigInt `[0100]`
+
+## 4. BigInt `[0100]`
 type: `0100` <br>
 sub-type 4 bits:
 + 1 bit for sign:
@@ -163,7 +170,8 @@ __Examples:__
 |`-257n`                | `0100` | `1`  | `001`  | `00000010`        | `10000000` `00000001` |
 |`12345678901234567890n`| `0100` | `0`  | `001`  | `00000100`        | `10101011` `01010100` `10101001` `10001100` `11101011` `00011111` `00001010` `11010010` |
 
-## 6. Arrays `[0101]`
+
+## 5. Arrays `[0101]`
 type: `0101` <br>
 sub-type 4 bits:
 + 1 bit for sparse array type:
@@ -200,7 +208,8 @@ __Examples:__
 | [12, , 32, 42]           | `0101` | `1`    | `001` (x2)   | `00000100` `00000011` | `<Integer 0>` `<Integer 12>` `<Integer 2>` `<Integer 32>` `<Integer 3>` `<Integer 42>` |
 | [ , , , , , 100]         | `0101` | `1`    | `001` (x2)   | `00000110` `00000001` | `<Integer 5>` `<Integer 100>` |
 
-## 7. Typed Arrays `[0110]`
+
+## 6. Typed Arrays `[0110]`
 type: `0110` <br>
 sub-type 4 bits:
 + 4 bits for TypedArray type:
@@ -225,7 +234,7 @@ Additional 1 byte for parameters:
     + `0` - dense array
     + `1` - sparse array (has empty elements)
   - 3 bits for length bytes
-    + it should be `000` for various size array.
+    + it should be `000` for dense array. (Length will be calculated by items count)
   - 3 bits for items count
 
 __Note:__
@@ -236,10 +245,30 @@ __Sparse arrays:__
 - Empty values are skipped from encoding
 
 __Examples:__
-| typed array                    | type   | typed array | various | sparse | length | items | len/count bytes | encoding bytes |
-|--------------------------------|--------|-------------|---------|--------|--------|-------| ----------------|----------------|
-| empty `Int8Array([])`          | `0110` | `0001`      | `0`     | `0`    | `000`  | `000` |                 |
-| empty `Uint32Array([])`        | `0110` | `0111`      | `0`     | `0`    | `000`  | `000` |                 |
-| `Int8Array([-1, 2, 3])`        | `0110` | `0001`      | `0`     | `0`    | `001`  | `001` | `00000011` `00000011` | `11111111` `00000010` `00000011` |
-| `Int16Array([258, 1, -3])`     | `0110` | `0100`      | `0`     | `0`    | `001`  | `001` | `00000110` `00000011` | `00000010` `00000001` `00000001` `00000000` `11111101` `11111111` |
-| `Int32Array([258, 1, -3])`     | `0110` | `0100`      | `1`     | `0`    | `000`  | `001` | `00000011`      | `<Integer 258>` `<Integer 1>` `<Integer -3>` |
+| typed array                    | type   | typed  | various | sparse | length | items | length bytes | count bytes | encoding bytes |
+|--------------------------------|--------|------- |---------|--------|--------|-------| -------------|-------------|----------------|
+| empty `Int8Array([])`          | `0110` | `0001` | `0`     | `0`    | `000`  | `000` |              |             |
+| empty `Uint32Array([])`        | `0110` | `0111` | `0`     | `0`    | `000`  | `000` |              |             |
+| `Int8Array([-1, 2, 3])`        | `0110` | `0001` | `0`     | `0`    | `000`  | `001` |              | `00000011`  | `11111111` `00000010` `00000011` |
+| `Int16Array([258, 1, -3])`     | `0110` | `0100` | `0`     | `0`    | `000`  | `001` |              | `00000011`  | `00000010` `00000001` `00000001` `00000000` `11111101` `11111111` |
+| `Int32Array([258, 1, -3])`     | `0110` | `0100` | `1`     | `0`    | `000`  | `001` |              | `00000011`  | `<Integer 258>` `<Integer 1>` `<Integer -3>` |
+| `Int16Array([258, , -3])`      | `0110` | `0100` | `0`     | `1`    | `001`  | `001` | `00000011`   | `00000010`  | `<Integer 0>` `00000010` `00000001` `<Integer 2>` `00000010` `00000001` |
+| `Int16Array([258, , -3])`      | `0110` | `0100` | `1`     | `1`    | `001`  | `001` | `00000011`   | `00000010`  | `<Integer 0>` `<Integer 258>` `<Integer 2>` `<Integer -3>` |
+
+
+## 7. Objects `[0111]`
+type: `0111` <br>
+sub-type 4 bits:
++ 1 bit reserved:
+    - `0`
++ 3 bits for properties amount of bytes:
+    - `000` - empty object.
+    - `001` - 1 byte (from 1 to 255 properties).
+    - `010` - 2 bytes (from 256 to 65,535 properties)
+    - `011` - 3 bytes (from 65536 to 1,677,7215 properties)
+    - ...
+    - `111` - 7 bytes for length (up to 256<sup>7</sup> items length)
+
+__Note:__
+
+__Examples:__
