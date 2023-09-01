@@ -23,8 +23,8 @@ JavaScript Byte Translation
 `0101` - Arrays  
 `0110` - Typed Arrays  
 `0111` - Objects  
-`? 1000` - Sets  
-`? 1001` - Maps  
+`1000` - Sets  
+`1001` - Maps  
 `? 1010` - Symbols  
 `? 1011` - ?  
 `? 1100` - Refs  
@@ -183,22 +183,22 @@ sub-type 4 bits:
     - `0` - dense array
     - `1` - sparse array (has empty elements)
 + 3 bits for amount bytes for array length:
-    - `000` - empty string.
-    - `001` - 1 byte for length (from 1 to 255 items).
-    - `010` - 2 bytes for length (from 256 to 65,535 items)
-    - `011` - 3 bytes for length (from 65536 to 1,677,7215 items)
+    - `000` - empty array.
+    - `001` - 1 byte for array length (from 1 to 255 items).
+    - `010` - 2 bytes for array length (from 256 to 65,535 items)
+    - `011` - 3 bytes for array length (from 65536 to 1,677,7215 items)
     - ...
-    - `111` - 7 bytes for length (up to 256<sup>7</sup> items length)
+    - `111` - 7 bytes for array length (up to 256<sup>7</sup> - 1 items)
 
 __Note:__
 - Array can include any supported types (arrays, objects, numbers and so on)
-- Max count of items is 256<sup>7</sup>
+- Max count of items is 256<sup>7</sup> - 1
 
 __Sparse arrays:__
 - Sparse Arrays use twice more bytes at 'array length' field.
   + first half bytes for array length
   + following half bytes for count of not empty items
-- Not empty values of sparse arrays should be encoded with item index bofore a value
+- Not empty values of sparse arrays should be encoded with item's index before a value
 - Empty values are skipped from encoding
 
 __Examples:__
@@ -246,7 +246,7 @@ __Note:__
 - It is Little-Endian byte ordering (`0x78563412` => `12` `34` `56` `78`)
 
 __Sparse arrays:__
-- Not empty values of sparse arrays should be encoded with item index bofore a value
+- Not empty values of sparse arrays should be encoded with item index before a value
 - Empty values are skipped from encoding
 
 __Examples:__
@@ -272,8 +272,8 @@ sub-type 4 bits:
     - `010` - 2 bytes for properties amount (from 256 to 65,535 properties)
     - `011` - 3 bytes for properties amount (from 65536 to 1,677,7215 properties)
     - ...
-    - `111` - 7 bytes for length (up to 256<sup>7</sup> items length)
-+ 0-7 bytes for properies count
+    - `111` - 7 bytes for properties amount (up to 256<sup>7</sup> - 1 properties)
++ 1-7 bytes for properies count
 + Encoding bytes:
   - each property should be encoded like key & value.
   - allowed types for Object keys are `String`, `Integer`, `BigInt`, `Symbol`.
@@ -285,9 +285,64 @@ __Note:__
 
 __Examples:__
 
-| object                         | type   | res | length | length bytes | encoding bytes |
+| object                         | type   | rsv | length | length bytes | encoding bytes |
 |--------------------------------|--------|-----|--------|--------------|----------------|
 | empty `{}`                     | `0111` | `0` | `000`  |              |                |
 | `{ a: 1, b: 2, c: 3 }`         | `0111` | `0` | `001`  | `00000011`   | `<String "a">` `<Integer 1>` `<String "b">` `<Integer 2>` `<String "c">` `<Integer 3>` |
 | `{ 42: 'foo' }`                | `0111` | `0` | `001`  | `00000001`   | `<String "42" or Integer 42>` `<String "foo">` |
 | `{ [Symbol.for('foo')]: 42 }`  | `0111` | `0` | `001`  | `00000001`   | `<Symbol.for('foo')>` `<Integer 42>` |
+
+
+## 8. Sets `[1000]`
+type: `1000` <br>
+sub-type 4 bits:
++ 1 bit reserved:
+    - `0` - reserved bit
++ 3 bits for amount bytes for set size:
+    - `000` - empty set.
+    - `001` - 1 byte for set size (from 1 to 255 items).
+    - `010` - 2 bytes for set size (from 256 to 65,535 items)
+    - `011` - 3 bytes for set size (from 65536 to 1,677,7215 items)
+    - ...
+    - `111` - 7 bytes for set size (up to 256<sup>7</sup> - 1 items)
++ 1-7 bytes for properies count
++ Encoding bytes
+
+__Note:__
+- Set can include any supported types (arrays, objects, numbers and so on)
+- Max allowed Set size is 256<sup>7</sup> - 1
+- ASC items order
+- Duplicated items are not allowed
+
+__Examples:__
+| set                                    | type   | rsv | bytes length | array length | encoding bytes |
+|----------------------------------------|--------|-----|--------------|--------------| ---------------|
+| new Set()                              | `1000` | `0` | `000`        |              |                |
+| new Set([1, 2, 3])                     | `1000` | `0` | `001`        | `00000011`   | `<Integer 1>` `<Integer 2>` `<Integer 3>` |
+| new Set([ new Set([1, 2, 3]), {a:1} ]) | `1000` | `0` | `001`        | `00000010`   | `<Set [1,2,3]>` `<Object {a:1}>` |
+
+
+## 9. Maps `[1001]`
+type: `1001` <br>
+sub-type 4 bits:
++ 1 bit reserved:
+    - `0`
++ 3 bits for properties amount of bytes:
+    - `000` - Empty Map.
+    - `001` - 1 byte for map size (from 1 to 255 items).
+    - `010` - 2 bytes for map size (from 256 to 65,535 items)
+    - `011` - 3 bytes for map size (from 65536 to 1,677,7215 items)
+    - ...
+    - `111` - 7 bytes for map size (up to 256<sup>7</sup> - 1 items length)
++ 1-7 bytes for map size
++ Encoding bytes:
+  - each item should be encoded like key & value.
+  - all types are allowed for key or value
+  - ASC items order
+
+__Examples:__
+
+| map                              | type   | res | length | length bytes | encoding bytes |
+|----------------------------------|--------|-----|--------|--------------|----------------|
+| new Map()                        | `1001` | `0` | `000`  |              |                |
+| new Map([['a', 1], ['foo', 42]]) | `1001` | `0` | `001`  | `00000010`   | `<String "a">` `<Integer 1>` `<String "foo">` `<Integer 42>` |
