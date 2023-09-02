@@ -26,9 +26,9 @@ JavaScript Byte Translation
 `1000` - Sets  
 `1001` - Maps  
 `1010` - Symbols  
-`? 1011` - ?  
-`? 1100` - Refs  
-`? 1101` - ?  
+`1011` - Refs  
+`? 1100` - ?
+`? 1101` - ? Combined String
 `1110` - Additional types  
 `1111` - Instructions  
 
@@ -348,28 +348,75 @@ __Examples:__
 | new Map([['a', 1], ['foo', 42]]) | `1001` | `0` | `001`  | `00000010`   | `<String "a">` `<Integer 1>` `<String "foo">` `<Integer 42>` |
 
 
-## 10. Symbols `[1010]`
-type: `1010` <br>
+## 11. Refs `[1011]`
+
+Ref is a not a separate type, it is a link that allows to use some type several time.  
+Also it allows to store different data with keeping references inside encoded data.
+
+Example:
+```javascript
+const arr = [1, 2, 3];
+const obj = { foo: 'bar', arr: arr };
+
+const data = {
+    arr1: arr,
+    arr2: arr,
+    obj1: obj,
+    obj2: obj,
+};
+
+console.log(data.arr1 === data.arr2); // true
+console.log(data.obj1 === data.obj2); // true
+console.log(data.obj1.arr === data.obj2.arr); // true
+```
+If you use `JSON.stringify(data)` and then `JSON.parse(json)` you will get 4 different array and 2 objects like: 
+```javascript
+const json = JSON.stringify(data);
+const data2 = JSON.parse(json);
+
+console.log(data2.arr1 === data2.arr2); // false
+console.log(data2.obj1 === data2.obj2); // false
+console.log(data2.obj1.arr === data2.obj2.arr); // false
+```
+__Ref__ solves the problem and after encoding and decoding at JSBT format the refs inside the data will be keeped. 
+```javascript
+const message = JSBT.encode(data);
+const data3 = JSBT.decode(message);
+
+console.log(data3.arr1 === data3.arr2); // true
+console.log(data3.obj1 === data3.obj2); // true
+console.log(data3.obj1.arr === data3.obj2.arr); // true
+```
+
+type: `1011` <br>
 sub-type 4 bits:
-+ 1 bit reserved:
-    - `0`
++ 1 bit mode:
+    - `0` - reserved.
+    - `1` - reserved.
 + 3 bits for amount length bytes:
-    - `000` - empty symbol key ('').
-    - `001` - 1 byte for length (from 1 to 255 bytes length string).
-    - `010` - 2 bytes for length (from 256 to 65,535 bytes)
-    - `011` - 3 bytes for length (from 65536 to 1,677,7215 bytes)
+    - `000` - creating a new ref for the following type.
+    - `001` - 1 byte for length (from 1 to 255 refs).
+    - `010` - 2 bytes for length (from 256 to 65,535 refs)
+    - `011` - 3 bytes for length (from 65536 to 1,677,7215 refs)
     - ...
-    - `111` - 7 bytes for length (up to 65,536 terabytes length)
+    - `111` - 7 bytes for length (up to 256^<sup>7</sup> - 1 refs)
 
 __Note:__
+- It can not be used as separate type and should be used always with other type for creating a ref..
 - It should be encode like String, but with type `1010`
 - UTF-16 scheme
 - All Symbols will be encode like `Symbol.for(...)`
 
 __Examples:__
-| symbol               | type   | rsv | length   | length bytes   | encoding bytes |
-|----------------------|--------|-----|----------|----------------|----------------|
-| `Symbol.for('')`     | `1010` | `0` | `000`    |                |                |
-| `Symbol.for('Alex')` | `1010` | `0` | `001`    | 4 - `00000100` | `01000001` `01101100` `01100101` `01111000`|
-| `Symbol.for('🇬🇧')`   | `1010` | `0` | `001`    | 8 - `00001000` | `11011000.00111100` `11011101.11101100` `11011000.00111100` `11011101.11100111`|
-| `Symbol.for('I💖JS')`| `1010` | `0` | `001`    | 7 - `00000111` | `01001001` `11011000.00111101` `11011100.10010110` `01001010` `01010011`|
+| ref                        | ref index | type   | rsv | length   |  using index   | encoding bytes | following type |
+|----------------------------|-----------|--------|-----|----------|----------------|----------------|----------------|
+| creating ref to `{foo:42}` | 0         | `1011` | `0` | `000`    |                |                | `<Object {foo:42}>` |
+| creating ref to `[1,2,3]`  | 1         | `1011` | `0` | `000`    |                |                | `<Array [1,2,3]>` |
+| creating ref to `"Alex"`   | 2         | `1011` | `0` | `000`    |                |                | `<String "Alex">` |
+| ref to `{foo:42}` by index |           | `1011` | `0` | `001`    | `00000000`     |                |                |
+| creating ref to `3.141592` | 3         | `1011` | `0` | `000`    |                |                | `<Float "3.141592">` |
+| ref to `[1,2,3]` by index  |           | `1011` | `0` | `001`    | `00000001`     |                |                |
+| ref to `"Alex"` by index   |           | `1011` | `0` | `001`    | `00000010`     |                |                |
+| ref to `3.141592` by index |           | `1011` | `0` | `001`    | `00000011`     |                |                |
+
+
