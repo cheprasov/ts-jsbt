@@ -348,6 +348,33 @@ __Examples:__
 | new Map([['a', 1], ['foo', 42]]) | `1001` | `0` | `001`  | `00000010`   | `<String "a">` `<Integer 1>` `<String "foo">` `<Integer 42>` |
 
 
+## 10. Symbols `[1010]`
+type: `1010` <br>
+sub-type 4 bits:
++ 1 bit reserved:
+    - `0`
++ 3 bits for amount length bytes:
+    - `000` - empty symbol key ('').
+    - `001` - 1 byte for length (from 1 to 255 bytes length string).
+    - `010` - 2 bytes for length (from 256 to 65,535 bytes)
+    - `011` - 3 bytes for length (from 65536 to 1,677,7215 bytes)
+    - ...
+    - `111` - 7 bytes for length (up to 65,536 terabytes length)
+
+__Note:__
+- It should be encode like String, but with type `1010`
+- UTF-16 scheme
+- All Symbols will be encode like `Symbol.for(...)`
+
+__Examples:__
+| symbol               | type   | rsv | length   | length bytes   | encoding bytes |
+|----------------------|--------|-----|----------|----------------|----------------|
+| `Symbol.for('')`     | `1010` | `0` | `000`    |                |                |
+| `Symbol.for('Alex')` | `1010` | `0` | `001`    | 4 - `00000100` | `01000001` `01101100` `01100101` `01111000`|
+| `Symbol.for('🇬🇧')`   | `1010` | `0` | `001`    | 8 - `00001000` | `11011000.00111100` `11011101.11101100` `11011000.00111100` `11011101.11100111`|
+| `Symbol.for('I💖JS')`| `1010` | `0` | `001`    | 7 - `00000111` | `01001001` `11011000.00111101` `11011100.10010110` `01001010` `01010011`|
+
+
 ## 11. Refs `[1011]`
 
 Ref is a not a separate type, it is a link that allows to use some type several time.  
