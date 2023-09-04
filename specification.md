@@ -27,8 +27,8 @@ JavaScript Byte Translation
 `1001` - Maps  
 `1010` - Symbols  
 `1011` - Refs  
-`? 1100` - ?
-`? 1101` - ? Combined String
+`? 1100` - ?  
+`? 1101` - ? Combined String  
 `1110` - Additional types  
 `1111` - Instructions  
 

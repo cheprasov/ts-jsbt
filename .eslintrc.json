@@ -17,6 +17,7 @@
     "@typescript-eslint/explicit-member-accessibility": ["error", {"accessibility": "no-public"}],
     "@typescript-eslint/explicit-function-return-type": 0,
     "@typescript-eslint/indent": ["error", 4],
+    "@typescript-eslint/no-explicit-any": "off",
     "indent": ["error", 4, {"SwitchCase": 1}],
     "max-len": ["error", {"code": 120}],
     "no-prototype-builtins": "off",
