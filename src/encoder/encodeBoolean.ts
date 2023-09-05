@@ -1,8 +1,11 @@
-import { EConstantByteCode } from '../EConstantByte';
+import { EConstantByteCode } from '../EConstantByteCode';
 
-export const encodeBoolean = (value: boolean): string | null => {
+const TRUE_BYTE_CHR = String.fromCharCode(EConstantByteCode.TRUE);
+const FALSE_BYTE_CHR = String.fromCharCode(EConstantByteCode.FALSE);
+
+export const encodeBoolean = (value: boolean): string => {
     if (typeof value !== 'boolean') {
-        return null;
+        throw new Error(`Expecting "boolean" type, received "${value}" (${typeof value})`);
     }
-    return String.fromCharCode(value ? EConstantByteCode.TRUE : EConstantByteCode.FALSE);
+    return value ? TRUE_BYTE_CHR : FALSE_BYTE_CHR;
 }

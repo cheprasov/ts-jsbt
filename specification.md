@@ -3,14 +3,16 @@ JavaScript Byte Translation
 
 
 ## Structure
-1-st byte describe value:
-- 4 bits is for value type
-- 4 bits is for service
++ __type byte__ describe value:
+  - 4 bits is for value type
+  - 4 bits is for service
++ (optional) __extra type bytes__ with additional params of type
++ (optional) __encoding bytes__ for encoding data
 
-|   1-st byte                  || other bytes                   |
-|-------------|-----------------|-------------------------------|
-| 4 bits type | 4 bits sub-type | 0 or more encoding bytes      |
-| `XXXX`      | `YYYY`          | `<depends on type>`           |
+| type byte                    || extra type bytes | encoding bytes |
+|-------------|-----------------|------------------|----------------|
+| 4 bits type | 4 bits sub-type | 0 or more encoding bytes         ||
+| `XXXX`      | `YYYY`          | `<depends on type>`              ||
 
 
 ## Suported Types

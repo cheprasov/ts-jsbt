@@ -1,4 +1,4 @@
-import { ETypeByteCode } from './ETypeByte';
+import { ETypeByteCode } from './ETypeByteCode';
 
 export enum EConstantByteCode {
     FALSE     = ETypeByteCode.Constant | 0b0000_0000,
