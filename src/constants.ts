@@ -1,0 +1,2 @@
+
+export const MAX_7_BYTES_INTEGER = 0x1FFFFFFFFFFFFF; // Number.MAX_SAFE_NUMBER;

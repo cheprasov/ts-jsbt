@@ -1,12 +1,11 @@
 import { ETypeByteCode } from '../ETypeByteCode';
+import { MAX_7_BYTES_INTEGER } from '../constants';
 import { toCode } from '../utils/toCode';
-import { getBytesFromInteger } from './getBytesFromInteger';
+import { integerToBytes } from './integerToBytes';
 import { getBytesSizeForInteger } from './getBytesSizeForInteger';
 import { getBytesSizeForString } from './getBytesSizeForString';
 
-const EMPTY_STRING_BYTE_CHAR = toCode(ETypeByteCode.String & 0b1111_0000)
-
-const MAX_BYTES_SIZE = (256 ** 7) - 1;
+const EMPTY_STRING_BYTE_CHAR = toCode(ETypeByteCode.String & 0b1111_0000);
 
 export const encodeString = (value: string): string => {
     if (typeof value !== 'string') {
@@ -18,13 +17,15 @@ export const encodeString = (value: string): string => {
     const msg: string[] = [];
 
     const bytesSize = getBytesSizeForString(value);
-    if (bytesSize > MAX_BYTES_SIZE) {
-        throw new Error(`Too large string. ${bytesSize} bytes, max ${MAX_BYTES_SIZE}`);
+    if (bytesSize > MAX_7_BYTES_INTEGER) {
+        throw new Error(`Too large string. ${bytesSize} bytes, limit ${MAX_7_BYTES_INTEGER}`);
     }
     const bytesLen = getBytesSizeForInteger(bytesSize);
     // type byte
     msg.push(toCode(ETypeByteCode.String | (0b0000_0111 & bytesLen)));
-    msg.push(toCode(...getBytesFromInteger(bytesSize, bytesLen, false)));
+    // length bytes
+    msg.push(toCode(...integerToBytes(bytesSize, bytesLen, false)));
+    // encode bytes
     msg.push(value);
 
     return msg.join('');
