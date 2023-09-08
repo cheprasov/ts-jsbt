@@ -20,8 +20,16 @@ const config: webpack.Configuration = {
         rules: [
             {
                 test: /\.ts$/,
-                use: 'ts-loader',
                 exclude: [/node_modules/, /\.test\./i],
+                use: [
+                    {
+                        loader: 'ts-loader',
+                        options: {
+                            configFile: 'tsconfig.webpack.json',
+                            // transpileOnly: true,
+                        }
+                    },
+                ],
             },
         ],
     },

@@ -1,9 +1,13 @@
 import { bigIntToBytes } from './bigIntToBytes';
 
 export const integerToBytes = (int: number, byteSize: number = 0, bigEndianOrder: boolean = false): number[] => {
-    if (int > 0xFF_FF_FF_FF) {
+    if (int > 0xFF_FF_FF_FF || int <= -0xFF_FF_FF_FF) {
         // Because JS uses 4 bytes for bitwise operations :(
-        return bigIntToBytes(BigInt(int), byteSize, bigEndianOrder).map((bint) => Number(bint));
+        return bigIntToBytes(
+            BigInt(int),
+            int < 0 && !byteSize ? 8 : byteSize,
+            bigEndianOrder,
+        ).map((bint) => Number(bint));
     }
     const bytes: number[] = [];
     let num = int;
@@ -11,6 +15,5 @@ export const integerToBytes = (int: number, byteSize: number = 0, bigEndianOrder
         bytes.push(num & 0xFF);
         num = num >>> 8;
     }
-
     return bigEndianOrder ? bytes.reverse() : bytes;
 }
