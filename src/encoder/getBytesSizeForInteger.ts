@@ -1,3 +1,6 @@
+/**
+ * @deprecated Please use integerToBytes
+ */
 export const getBytesSizeForInteger = (n: number): number => {
     const int = Math.abs(n);
     if (int === 0) {

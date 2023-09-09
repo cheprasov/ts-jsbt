@@ -16,15 +16,15 @@ export const encodeString = (value: string): string => {
     }
     const msg: string[] = [];
 
-    const bytesSize = getBytesSizeForString(value);
-    if (bytesSize > MAX_7_BYTES_INTEGER) {
-        throw new Error(`Too large string. ${bytesSize} bytes, limit ${MAX_7_BYTES_INTEGER}`);
+    const bytesCount = getBytesSizeForString(value);
+    if (bytesCount > MAX_7_BYTES_INTEGER) {
+        throw new Error(`Too large string. ${bytesCount} bytes, limit ${MAX_7_BYTES_INTEGER}`);
     }
-    const bytesLen = getBytesSizeForInteger(bytesSize);
+    const bytes = integerToBytes(bytesCount)
     // type byte
-    msg.push(toCode(ETypeByteCode.String | (0b0000_0111 & bytesLen)));
+    msg.push(toCode(ETypeByteCode.String | (0b0000_0111 & bytes.length)));
     // length bytes
-    msg.push(toCode(...integerToBytes(bytesSize, bytesLen, false)));
+    msg.push(toCode(...bytes));
     // encode bytes
     msg.push(value);
 
