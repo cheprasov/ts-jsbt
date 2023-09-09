@@ -38,10 +38,6 @@ JavaScript Byte Translation
 ## 0. Predefined Constants `[0000]`
 type: `0000` <br>
 sub-type: defined constant
- - `0000` - bolean `FALSE`
- - `0001` - bolean `TRUE`
- - `0010` - `NULL`
- - `0011` - `Undefined`
 
 | constant         | type   | sub-type |
 |------------------|--------|----------|
@@ -52,6 +48,7 @@ sub-type: defined constant
 | `NaN`            | `0000` | `0100`   |
 | `+Infinity`      | `0000` | `0101`   |
 | `-Infinity`      | `0000` | `0110`   |
+| `Empty Value`    | `0000` | `0111`   |
 
 
 ## 1. Strings `[0001]`

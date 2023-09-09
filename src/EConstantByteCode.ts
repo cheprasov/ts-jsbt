@@ -8,4 +8,5 @@ export enum EConstantByteCode {
     NaN          = ETypeByteCode.Constant | 0b0000_0100,
     Pos_Infinity = ETypeByteCode.Constant | 0b0000_0101,
     Neg_Infinity = ETypeByteCode.Constant | 0b0000_0110,
+    Empty_Value  = ETypeByteCode.Constant | 0b0000_0111,
 }
