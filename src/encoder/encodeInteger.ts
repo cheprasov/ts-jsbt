@@ -1,8 +1,8 @@
 import { ETypeByteCode } from '../ETypeByteCode';
 import { MAX_7_BYTES_INTEGER } from '../constants';
+import { integerToBytes } from '../converter/integerToBytes';
 import { toCode } from '../utils/toCode';
 import { isInteger } from '../utils/vars/isInteger';
-import { integerToBytes } from './integerToBytes';
 
 const POS_ZERO_BYTE_CHAR = toCode(ETypeByteCode.Integer & 0b1111_0000);
 const NEG_ZERO_BYTE_CHAR = toCode(ETypeByteCode.Integer & 0b1111_0000 | 0b0000_1000);

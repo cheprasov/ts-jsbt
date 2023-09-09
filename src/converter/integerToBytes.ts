@@ -1,4 +1,4 @@
-import { bigIntToBytes } from './bigIntToBytes';
+import { bigIntToBytes } from '../converter/bigIntToBytes';
 
 export const integerToBytes = (int: number, byteSize: number = 0, bigEndianOrder: boolean = false): number[] => {
     if (int > 0xFF_FF_FF_FF || int <= -0xFF_FF_FF_FF) {

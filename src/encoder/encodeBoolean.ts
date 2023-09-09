@@ -1,7 +1,8 @@
 import { EConstantByteCode } from '../EConstantByteCode';
+import { toCode } from '../utils/toCode';
 
-const TRUE_BYTE_CHR = String.fromCharCode(EConstantByteCode.TRUE);
-const FALSE_BYTE_CHR = String.fromCharCode(EConstantByteCode.FALSE);
+const TRUE_BYTE_CHR = toCode(EConstantByteCode.TRUE);
+const FALSE_BYTE_CHR = toCode(EConstantByteCode.FALSE);
 
 export const encodeBoolean = (value: boolean): string => {
     if (typeof value !== 'boolean') {

@@ -1,9 +1,8 @@
 import { ETypeByteCode } from '../ETypeByteCode';
 import { MAX_7_BYTES_INTEGER } from '../constants';
+import { getBytesSizeForString } from '../converter/getBytesSizeForString';
+import { integerToBytes } from '../converter/integerToBytes';
 import { toCode } from '../utils/toCode';
-import { integerToBytes } from './integerToBytes';
-import { getBytesSizeForInteger } from './getBytesSizeForInteger';
-import { getBytesSizeForString } from './getBytesSizeForString';
 
 const EMPTY_STRING_BYTE_CHAR = toCode(ETypeByteCode.String & 0b1111_0000);
 
