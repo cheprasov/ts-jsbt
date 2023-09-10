@@ -2,7 +2,7 @@ import { expectAsBinaryString } from '../_tests/utils/expectAsBinaryString';
 import { encodeInteger } from './encodeInteger';
 
 describe('encodeInteger', () => {
-    it('should encode string correct', () => {
+    it('should encode integer correct', () => {
         expectAsBinaryString(encodeInteger(0)).toBe('00100000');
         expectAsBinaryString(encodeInteger(-0)).toBe('00101000');
 
