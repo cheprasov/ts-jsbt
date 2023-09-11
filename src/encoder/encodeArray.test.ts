@@ -21,6 +21,12 @@ describe('encodeArray', () => {
     });
 
     it('should encode sparse array correct', () => {
+        expectAsBinaryString(encodeArray(new Array(5))).toBe(
+            '01011001 00000101 00000000'
+        );
+        expectAsBinaryString(encodeArray(new Array(256))).toBe(
+            '01011010 00000000 00000001 00000000 00000000'
+        );
         expectAsBinaryString(encodeArray([1, , 3])).toBe(
             '01010001 00000011 00100001 00000001 00000111 00100001 00000011'
         );
