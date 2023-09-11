@@ -3,9 +3,9 @@ JavaScript Byte Translation
 
 
 ## Structure
-+ __type byte__ describe value:
-  - 4 bits is for value type
-  - 4 bits is for service
++ __type byte__ describes value:
+  - 4 bits for value type
+  - 4 bits for service
 + (optional) __extra type bytes__ with additional params of type
 + (optional) __encoding bytes__ for encoding data
 
@@ -203,6 +203,7 @@ __Sparse arrays:__
   + following half bytes for count of not empty items
 - Not empty values of sparse arrays should be encoded with item's index before a value
 - Empty values are skipped from encoding
+- Sparse array could be encoded like dense array with using `Empty Value` for empty items in the array
 
 __Examples:__
 | array                    | type   | sparse | bytes length | array length   | encoding bytes |
@@ -214,6 +215,7 @@ __Examples:__
 | ['Alex', 42, 3.14, true] | `0101` | `0`    | `001`        | `00000100`     | `<String Alex>` `<Integer 42>` `<Float 3.14>` `<Boolean TRUE>` |
 | [[1, 2, 3], [4], [5, 6]] | `0101` | `0`    | `001`        | `00000011`     | `<Array [1, 2, 3]>` `<Array [4]>` `<Array [5, 6]>` |
 | [12, , 32, 42]           | `0101` | `1`    | `001` (x2)   | `00000100` `00000011` | `<Integer 0>` `<Integer 12>` `<Integer 2>` `<Integer 32>` `<Integer 3>` `<Integer 42>` |
+| [12, , 32, 42]           | `0101` | `0`    | `001`        | `00000100`     | `<Integer 12>` `<Empty Value>` `<Integer 32>` `<Integer 42>` |
 | [ , , , , , 100]         | `0101` | `1`    | `001` (x2)   | `00000110` `00000001` | `<Integer 5>` `<Integer 100>` |
 
 
