@@ -1,3 +1,4 @@
+import { encodeArray } from './encoder/encodeArray';
 import { encodeBoolean } from './encoder/encodeBoolean';
 import { encodeFloat } from './encoder/encodeFloat';
 import { encodeInfinity } from './encoder/encodeInfinity';
@@ -12,7 +13,7 @@ import { isInteger } from './utils/vars/isInteger';
 
 export class JSBT {
 
-    static encode(value: any, options: IEncodeOptions): string {
+    static encode(value: any, options?: IEncodeOptions): string {
         const type = typeof value;
         switch (type) {
             case 'undefined': {
@@ -53,5 +54,7 @@ export class JSBT {
         throw new Error(`Unsupported encoding value: "${value}", type: "${type}"`);
     }
 
-    static decode<T = any>(value: string): T {}
+    static decode<T = any>(value: string): T {
+        return '' as T;
+    }
 }

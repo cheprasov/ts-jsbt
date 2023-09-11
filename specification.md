@@ -182,9 +182,9 @@ __Examples:__
 ## 5. Arrays `[0101]`
 type: `0101` <br>
 sub-type 4 bits:
-+ 1 bit for sparse array type:
-    - `0` - dense array
-    - `1` - sparse array (has empty elements)
++ 1 bit for encoding type:
+    - `0` - encode only values
+    - `1` - encode keys and values
 + 3 bits for amount bytes for array length:
     - `000` - empty array.
     - `001` - 1 byte for array length (from 1 to 255 items).
@@ -197,13 +197,15 @@ __Note:__
 - Array can include any supported types (arrays, objects, numbers and so on)
 - Max count of items is 256<sup>7</sup> - 1
 
-__Sparse arrays:__
-- Sparse Arrays use twice more bytes at 'array length' field.
-  + first half bytes for array length
-  + following half bytes for count of not empty items
-- Not empty values of sparse arrays should be encoded with item's index before a value
-- Empty values are skipped from encoding
-- Sparse array could be encoded like dense array with using `Empty Value` for empty items in the array
+__Only Values Encoding:__
+- It should be used `Empty Value` for encoding not filled items in the array
+
+__Keys & Value Encoding:__
+- It takes twice more bytes at 'array length' field.
+  + first half bytes for array length.
+  + following half bytes for count of not empty items.
+- Not empty values of array should be encoded with item's index before a value.
+- Empty values are skipped from encoding.
 
 __Examples:__
 | array                    | type   | sparse | bytes length | array length   | encoding bytes |
