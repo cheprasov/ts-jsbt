@@ -1,8 +1,8 @@
-import { EConstantByteCode } from '../EConstantByteCode';
-import { toCode } from '../utils/toCode';
+import { EConstantByteCode } from '../enums/EConstantByteCode';
+import { toChar } from '../utils/toChar';
 
-const POS_INFINITY_CHR = toCode(EConstantByteCode.Pos_Infinity);
-const NEG_INFINITY_CHR = toCode(EConstantByteCode.Neg_Infinity);
+const POS_INFINITY_CHR = toChar(EConstantByteCode.Pos_Infinity);
+const NEG_INFINITY_CHR = toChar(EConstantByteCode.Neg_Infinity);
 
 export const encodeInfinity = (value: number): string => {
     if (value !== Infinity && value !== -Infinity) {

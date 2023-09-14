@@ -1,10 +1,10 @@
-import { ETypeByteCode } from '../ETypeByteCode';
+import { ETypeByteCode } from '../enums/ETypeByteCode';
 import { MAX_7_BYTES_INTEGER } from '../constants';
 import { getBytesSizeForString } from '../converter/getBytesSizeForString';
 import { integerToBytes } from '../converter/integerToBytes';
-import { toCode } from '../utils/toCode';
+import { toChar } from '../utils/toChar';
 
-const EMPTY_STRING_BYTE_CHAR = toCode(ETypeByteCode.String & 0b1111_0000);
+const EMPTY_STRING_BYTE_CHAR = toChar(ETypeByteCode.String & 0b1111_0000);
 
 export const encodeString = (value: string): string => {
     if (typeof value !== 'string') {
@@ -21,9 +21,9 @@ export const encodeString = (value: string): string => {
     }
     const bytes = integerToBytes(bytesCount)
     // type byte
-    msg.push(toCode(ETypeByteCode.String | (0b0000_0111 & bytes.length)));
+    msg.push(toChar(ETypeByteCode.String | (0b0000_0111 & bytes.length)));
     // length bytes
-    msg.push(toCode(...bytes));
+    msg.push(toChar(...bytes));
     // encode bytes
     msg.push(value);
 

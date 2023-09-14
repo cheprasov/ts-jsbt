@@ -1,14 +1,14 @@
-import { ETypeByteCode } from '../ETypeByteCode';
+import { ETypeByteCode } from '../enums/ETypeByteCode';
 import { JSBT } from '../JSBT';
 import { MAX_7_BYTES_INTEGER } from '../constants';
 import { integerToBytes } from '../converter/integerToBytes';
 import { IEncodeOptions } from '../types/IEncodeOptions';
 import { getFilledItemsCount } from '../utils/arrays/getFilledItemsCount';
-import { toCode } from '../utils/toCode';
+import { toChar } from '../utils/toChar';
 import { encodeEmptyValue } from './encodeEmptyValue';
 import { encodeInteger } from './encodeInteger';
 
-const EMPTY_ARRAY_BYTE_CHAR = toCode(ETypeByteCode.Array & 0b1111_0000);
+const EMPTY_ARRAY_BYTE_CHAR = toChar(ETypeByteCode.Array & 0b1111_0000);
 
 const SPARSE_RATE = 0.5;
 
@@ -32,14 +32,14 @@ export const encodeArray = (arr: any[], options?: IEncodeOptions): string => {
     const msg: string[] = [];
 
     // type byte
-    msg.push(toCode(
+    msg.push(toChar(
         ETypeByteCode.Array
         | ((0b0000_0111 & bytes.length)
         | (isSparseEncoding ? 0b0000_1000 : 0))
     ));
 
     // length
-    msg.push(toCode(...bytes));
+    msg.push(toChar(...bytes));
 
     if (isSparseEncoding) {
         // Sparse Array Encoding
@@ -47,7 +47,7 @@ export const encodeArray = (arr: any[], options?: IEncodeOptions): string => {
 
         // Items count
         const countBytes = integerToBytes(filledCount, bytes.length);
-        msg.push(toCode(...countBytes));
+        msg.push(toChar(...countBytes));
 
         arr.forEach((item, index) => {
             msg.push(encodeInteger(index));

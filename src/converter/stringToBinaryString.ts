@@ -1,4 +1,4 @@
-import { toCode } from '../utils/toCode';
+import { toChar } from '../utils/toChar';
 
 export const stringToBinaryString = (str: string, sepByte: string = '', sepUtf16: string = ''): string => {
     const binaryStrings: string[] = [];

@@ -1,7 +1,7 @@
-import { EConstantByteCode } from '../EConstantByteCode';
-import { toCode } from '../utils/toCode';
+import { EConstantByteCode } from '../enums/EConstantByteCode';
+import { toChar } from '../utils/toChar';
 
-const UNDEFINED_BYTE = toCode(EConstantByteCode.Undefined)
+const UNDEFINED_BYTE = toChar(EConstantByteCode.Undefined)
 
 export const encodeUndefined = (): string => {
     return UNDEFINED_BYTE;

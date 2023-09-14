@@ -242,9 +242,9 @@ Additional 1 byte for parameters:
   - 1 bit for various size:
     + `0` - each value uses same amount of bytes
     + `1` - each value uses various size of bytes (encoded like a separate type)
-  - 1 bit for sparse array type:
-    + `0` - dense array
-    + `1` - sparse array (has empty elements)
+  - 1 bit for encoding type:
+    + `0` - encode only values
+    + `1` - encode keys and values
   - 3 bits for length bytes
     + it should be `000` for dense array. (Length will be calculated by items count)
   - 3 bits for items count

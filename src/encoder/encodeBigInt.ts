@@ -1,10 +1,10 @@
-import { ETypeByteCode } from '../ETypeByteCode';
+import { ETypeByteCode } from '../enums/ETypeByteCode';
 import { bigIntToBytes } from '../converter/bigIntToBytes';
 import { integerToBytes } from '../converter/integerToBytes';
-import { toCode } from '../utils/toCode';
+import { toChar } from '../utils/toChar';
 import { isBigInt } from '../utils/vars/isBigInt';
 
-const ZERO_BYTE_CHAR = toCode(ETypeByteCode.BigInt & 0b1111_0000);
+const ZERO_BYTE_CHAR = toChar(ETypeByteCode.BigInt & 0b1111_0000);
 
 export const encodeBigInt = (value: bigint): string => {
     if (!isBigInt(value)) {
@@ -22,13 +22,13 @@ export const encodeBigInt = (value: bigint): string => {
     const bytes = bigIntToBytes(val);
     const lenBytes = integerToBytes(bytes.length);
     // type byte
-    msg.push(toCode(
+    msg.push(toChar(
         ETypeByteCode.BigInt | (0b0000_0111 & lenBytes.length) | (isPositive ? 0 : 0b0000_1000)
     ));
     // length bytes
-    msg.push(toCode(...lenBytes));
+    msg.push(toChar(...lenBytes));
     // encode bytes
-    msg.push(toCode(...bytes.map((i) => Number(i))));
+    msg.push(toChar(...bytes.map((i) => Number(i))));
 
     return msg.join('');
 };

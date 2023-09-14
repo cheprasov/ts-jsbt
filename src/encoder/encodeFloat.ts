@@ -1,6 +1,6 @@
-import { ETypeByteCode } from '../ETypeByteCode';
 import { doubleToBytes } from '../converter/doubleToBytes';
-import { toCode } from '../utils/toCode';
+import { ETypeByteCode } from '../enums/ETypeByteCode';
+import { toChar } from '../utils/toChar';
 import { isFloat } from '../utils/vars/isFloat';
 
 export const encodeFloat = (value: number, mapping: boolean = true): string => {
@@ -33,7 +33,7 @@ export const encodeFloat = (value: number, mapping: boolean = true): string => {
 
     // type byte
     msg.push(
-        toCode(
+        toChar(
             ETypeByteCode.Float |
                 (0b0000_0111 & ((isMapping ? mappedBytes.length : bytes.length) - 1)) |
                 (isMapping ? 0b0000_1000 : 0)
@@ -41,10 +41,10 @@ export const encodeFloat = (value: number, mapping: boolean = true): string => {
     );
     if (isMapping) {
         //mapping byte
-        msg.push(toCode(byteMap));
+        msg.push(toChar(byteMap));
     }
     // encode bytes
-    msg.push(toCode(...(isMapping ? mappedBytes : bytes)));
+    msg.push(toChar(...(isMapping ? mappedBytes : bytes)));
 
     return msg.join('');
 };

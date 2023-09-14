@@ -1,7 +1,7 @@
-import { EConstantByteCode } from '../EConstantByteCode';
-import { toCode } from '../utils/toCode';
+import { EConstantByteCode } from '../enums/EConstantByteCode';
+import { toChar } from '../utils/toChar';
 
-const NULL_BYTE = toCode(EConstantByteCode.Null)
+const NULL_BYTE = toChar(EConstantByteCode.Null)
 
 export const encodeNull = (): string => {
     return NULL_BYTE;

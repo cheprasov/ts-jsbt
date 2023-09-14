@@ -1,11 +1,11 @@
-import { ETypeByteCode } from '../ETypeByteCode';
+import { ETypeByteCode } from '../enums/ETypeByteCode';
 import { MAX_7_BYTES_INTEGER } from '../constants';
 import { integerToBytes } from '../converter/integerToBytes';
-import { toCode } from '../utils/toCode';
+import { toChar } from '../utils/toChar';
 import { isInteger } from '../utils/vars/isInteger';
 
-const POS_ZERO_BYTE_CHAR = toCode(ETypeByteCode.Integer & 0b1111_0000);
-const NEG_ZERO_BYTE_CHAR = toCode(ETypeByteCode.Integer & 0b1111_0000 | 0b0000_1000);
+const POS_ZERO_BYTE_CHAR = toChar(ETypeByteCode.Integer & 0b1111_0000);
+const NEG_ZERO_BYTE_CHAR = toChar(ETypeByteCode.Integer & 0b1111_0000 | 0b0000_1000);
 
 export const encodeInteger = (value: number): string => {
     if (!isInteger(value)) {
@@ -23,9 +23,9 @@ export const encodeInteger = (value: number): string => {
 
     const bytes = integerToBytes(val);
     // type byte
-    msg.push(toCode(ETypeByteCode.Integer | ((0b0000_0111 & bytes.length) | (isPositive ? 0 : 0b0000_1000))));
+    msg.push(toChar(ETypeByteCode.Integer | ((0b0000_0111 & bytes.length) | (isPositive ? 0 : 0b0000_1000))));
     // encode bytes
-    msg.push(toCode(...bytes));
+    msg.push(toChar(...bytes));
 
     return msg.join('');
 };
