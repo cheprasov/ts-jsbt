@@ -256,7 +256,7 @@ __encode keys and values:__
 - Empty values are skipped from encoding
 
 __Examples:__
-| typed array                    | type   | typed  | rsv | encode  | length | items | length bytes | count bytes | encoding bytes |
+| typed array                    | type   | typed  | rsv | encode  | length | items | length bytes | count items | encoding bytes |
 |--------------------------------|--------|------- |-----|---------|--------|-------| -------------|-------------|----------------|
 | empty `Int8Array([])`          | `0110` | `0001` | `0` | `0`     | `000`  | `000` |              |             |                |
 | empty `Uint32Array([])`        | `0110` | `0111` | `0` | `0`     | `000`  | `000` |              |             |                |
