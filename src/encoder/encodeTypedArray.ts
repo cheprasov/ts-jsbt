@@ -10,6 +10,7 @@ import { encodeInteger } from './encodeInteger';
 import { getBytesPerElement } from '../utils/typedArrays/getTypedArrayByteCount';
 import { ETypedArrayByteCode } from '../enums/ETypedArrayByteCode';
 import { getFilledItemsCount } from '../utils/typedArrays/getFilledItemsCount';
+import { calculateByteCountVariants } from '../utils/typedArrays/calculateByteCountVariants';
 
 const TYPED_ARRAY_CHAR_BY_NAME = {
     ArrayBuffer:       ETypedArrayByteCode.ArrayBuffer,
@@ -39,48 +40,26 @@ export const encodeTypedArray = (arr: TTypedArray, options?: IEncodeOptions): st
     }
 
     // TODO: various size
-    const isVariousSize = false;
     const bytesPerElement = getBytesPerElement(arr);
+    const definedItemsCount = getFilledItemsCount(arr);
     const length = arr.byteLength;
 
     if (length > MAX_7_BYTES_INTEGER) {
         throw new Error(`Provided typed array has too large length, limit ${MAX_7_BYTES_INTEGER}, received ${length}`);
     }
-
-    const filledCount = getFilledItemsCount(arr);
-    const isSparseEncoding = filledCount / arr.length < SPARSE_RATE;
-    const bytes = integerToBytes(arr.length);
-
     const msg: string[] = [];
+
+    const calculation = calculateByteCountVariants(arr);
+    const isValueEncoder = calculation.envValueSize <= calculation.encKeyValueSize;
 
     // type byte
     msg.push(toChar(typeCode));
 
-    // various / sparse / length / items count
+    // rsv / endoding / length / items count
     msg.push(toChar(
 
     ));
 
-    if (isSparseEncoding) {
-        // Sparse Array Encoding
-        // Encode only filled items with keys
-
-        // Items count
-        const countBytes = integerToBytes(filledCount, bytes.length);
-        msg.push(toChar(...countBytes));
-
-        arr.forEach((item, index) => {
-            msg.push(encodeInteger(index));
-            msg.push(JSBT.encode(item, options));
-        });
-    } else {
-        // Dense Array Encoding
-        // Encode all items including Empty Values
-        for (let i = 0; i < arr.length; i += 1) {
-            const isEmptyValue = !(String(i) in arr);
-            msg.push(isEmptyValue ? encodeEmptyValue() : JSBT.encode(arr[i], options));
-        }
-    }
 
     return msg.join('');
 };
