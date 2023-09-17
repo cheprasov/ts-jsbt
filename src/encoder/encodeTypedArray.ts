@@ -37,6 +37,8 @@ export const encodeTypedArray = (tarr: TTypedArray, options?: IEncodeOptions): s
         return toChar(typeCode, 0b0000_0000);
     }
 
+    const arr = tarr instanceof ArrayBuffer ? new Uint8Array(tarr) : tarr;
+
     // TODO: various size
     const bytesPerElement = getBytesPerElement(tarr);
     const definedItemsCount = getFilledItemsCount(tarr);
@@ -50,36 +52,32 @@ export const encodeTypedArray = (tarr: TTypedArray, options?: IEncodeOptions): s
 
     const calculation = calculateByteCountVariants(tarr);
     const isValueEncoding = calculation.envValueSize <= calculation.encKeyValueSize;
-    const isDenseArray = definedItemsCount * bytesPerElement === tarr.byteLength;
 
     // type byte
     msg.push(toChar(typeCode));
 
     // rsv / endoding / length / items count
-    const lenBytes = integerToBytes(tarr.byteLength);
-    const defLenBytes = integerToBytes(definedItemsCount);
+    const byteLenBytes = integerToBytes(tarr.byteLength);
+    const lenBytes = integerToBytes(arr.length);
+    const defCountBytes = integerToBytes(definedItemsCount);
     msg.push(
         toChar(
             0b0000_0000 |
                 (isValueEncoding ? 0 : 0b0_1_000000) |
-                (isDenseArray ? 0 : (0b00000_111 & lenBytes.length) << 3) |
-                (0b00000_111 & defLenBytes.length)
+                (isValueEncoding ? 0 : (0b00000_111 & byteLenBytes.length) << 3) |
+                (isValueEncoding ? (0b00000_111 & lenBytes.length) : (0b00000_111 & defCountBytes.length))
         )
     );
 
-    // length
-    if (!isDenseArray) {
-        msg.push(toChar(...lenBytes));
-    }
-
-    // items count
-    msg.push(toChar(...defLenBytes));
-
     if (isValueEncoding) {
+        // items count
+        msg.push(toChar(...lenBytes));
         const uint8arr = new Uint8Array(tarr instanceof ArrayBuffer ? tarr : tarr.buffer);
         msg.push(toChar(...uint8arr));
     } else {
-        const arr = tarr instanceof ArrayBuffer ? new Uint8Array(tarr) : tarr;
+        // length
+        msg.push(toChar(...byteLenBytes));
+        msg.push(toChar(...defCountBytes));
         for (let i = 0; i < arr.length; i += 1) {
             const num = arr[i];
             if (num) {

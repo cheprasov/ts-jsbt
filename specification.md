@@ -244,7 +244,7 @@ Additional 1 byte for parameters:
     + `0` - encode only values
     + `1` - encode keys and values
   - 3 bits for length bytes
-    + it should be `000` for dense array. (Length will be calculated by items count)
+    + it should be `000` for only values encoding. (Length will be calculated by items count)
   - 3 bits for items count
 
 __Note:__
@@ -256,13 +256,13 @@ __encode keys and values:__
 - Empty values are skipped from encoding
 
 __Examples:__
-| typed array                    | type   | typed  | rsv | encode  | length | items | length bytes | count items | encoding bytes |
-|--------------------------------|--------|------- |-----|---------|--------|-------| -------------|-------------|----------------|
-| empty `Int8Array([])`          | `0110` | `0001` | `0` | `0`     | `000`  | `000` |              |             |                |
-| empty `Uint32Array([])`        | `0110` | `0111` | `0` | `0`     | `000`  | `000` |              |             |                |
-| `Int8Array([-1, 2, 3])`        | `0110` | `0001` | `0` | `0`     | `000`  | `001` |              | `00000011`  | `11111111` `00000010` `00000011` |
-| `Int16Array([258, 1, -3])`     | `0110` | `0100` | `0` | `0`     | `000`  | `001` |              | `00000011`  | `00000010` `00000001` `00000001` `00000000` `11111101` `11111111` |
-| `Int16Array([258, , -3])`      | `0110` | `0100` | `0` | `1`     | `001`  | `001` | `00000011`   | `00000010`  | `<Integer 0>` `00000010` `00000001` `<Integer 2>` `00000010` `00000001` |
+| typed array                         | type   | typed  | rsv | encode  | length | items | length bytes | count items | encoding bytes |
+|-------------------------------------|--------|------- |-----|---------|--------|-------| -------------|-------------|----------------|
+| empty `Int8Array([])`               | `0110` | `0001` | `0` | `0`     | `000`  | `000` |              |             |                |
+| empty `Uint32Array([])`             | `0110` | `0111` | `0` | `0`     | `000`  | `000` |              |             |                |
+| `Int8Array([-1, 2, 3])`             | `0110` | `0001` | `0` | `0`     | `000`  | `001` |              | `00000011`  | `11111111 00000010 00000011` |
+| `Int16Array([258, 1, -3])`          | `0110` | `0100` | `0` | `0`     | `000`  | `001` |              | `00000011`  | `00000010 00000001 00000001 00000000 11111101 11111111` |
+| `Int16Array([0, 258, 0, 0, 0, -3])` | `0110` | `0100` | `0` | `1`     | `001`  | `001` | `00001100`   | `00000010`  | `<Integer 1> 00000010 00000001 <Integer 5> 11111101 11111111` |
 
 
 ## 7. Objects `[0111]`
