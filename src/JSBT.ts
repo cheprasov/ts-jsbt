@@ -5,11 +5,15 @@ import { encodeInfinity } from './encoder/encodeInfinity';
 import { encodeInteger } from './encoder/encodeInteger';
 import { encodeNaN } from './encoder/encodeNaN';
 import { encodeNull } from './encoder/encodeNull';
+import { encodeObject } from './encoder/encodeObject';
 import { encodeString } from './encoder/encodeString';
+import { encodeTypedArray } from './encoder/encodeTypedArray';
 import { encodeUndefined } from './encoder/encodeUndefined';
 import { IEncodeOptions } from './types/IEncodeOptions';
 import { isFloat } from './utils/vars/isFloat';
 import { isInteger } from './utils/vars/isInteger';
+import { isObject } from './utils/vars/isObject';
+import { isTypedArray } from './utils/vars/isTypedArray';
 
 export class JSBT {
 
@@ -46,6 +50,12 @@ export class JSBT {
                 }
                 if (Array.isArray(value)) {
                     return encodeArray(value, options);
+                }
+                if (isObject(value)) {
+                    return encodeObject(value, options);
+                }
+                if (isTypedArray(value)) {
+                    return encodeTypedArray(value, options);
                 }
                 break;
             }

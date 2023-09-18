@@ -270,17 +270,17 @@ type: `0111` <br>
 sub-type 4 bits:
 + 1 bit reserved:
     - `0`
-+ 3 bits for properties amount of bytes:
++ 3 bits for properties amount:
     - `000` - Empty object (without properties).
-    - `001` - 1 byte for properties amount (from 1 to 255 properties).
-    - `010` - 2 bytes for properties amount (from 256 to 65,535 properties)
-    - `011` - 3 bytes for properties amount (from 65536 to 1,677,7215 properties)
+    - `001` - 1 byte for 1 to 255 properties.
+    - `010` - 2 bytes for 256 to 65,535 properties.
+    - `011` - 3 bytes for 65536 to 1,677,7215 properties.
     - ...
-    - `111` - 7 bytes for properties amount (up to 256<sup>7</sup> - 1 properties)
-+ 1-7 bytes for properies count
+    - `111` - 7 bytes for up to 256<sup>7</sup> - 1 properties.
++ 1-7 bytes for encoding properies count
 + Encoding bytes:
   - each property should be encoded like key & value.
-  - allowed types for Object keys are `String`, `Integer`, `BigInt`, `Symbol`.
+  - allowed types for Object keys are `String`, `Integer`, `Symbol`.
   - any supported type is allowed for Object values.
 
 __Note:__
