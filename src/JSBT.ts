@@ -3,6 +3,7 @@ import { encodeBoolean } from './encoder/encodeBoolean';
 import { encodeFloat } from './encoder/encodeFloat';
 import { encodeInfinity } from './encoder/encodeInfinity';
 import { encodeInteger } from './encoder/encodeInteger';
+import { encodeMap } from './encoder/encodeMap';
 import { encodeNaN } from './encoder/encodeNaN';
 import { encodeNull } from './encoder/encodeNull';
 import { encodeObject } from './encoder/encodeObject';
@@ -13,6 +14,7 @@ import { encodeUndefined } from './encoder/encodeUndefined';
 import { IEncodeOptions } from './types/IEncodeOptions';
 import { isFloat } from './utils/vars/isFloat';
 import { isInteger } from './utils/vars/isInteger';
+import { isMap } from './utils/vars/isMap';
 import { isObject } from './utils/vars/isObject';
 import { isSet } from './utils/vars/isSet';
 import { isTypedArray } from './utils/vars/isTypedArray';
@@ -58,6 +60,9 @@ export class JSBT {
                 }
                 if (isSet(value)) {
                     return encodeSet(value, options);
+                }
+                if (isMap(value)) {
+                    return encodeMap(value, options);
                 }
                 if (isTypedArray(value)) {
                     return encodeTypedArray(value, options);

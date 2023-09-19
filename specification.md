@@ -342,7 +342,7 @@ sub-type 4 bits:
 + Encoding bytes:
   - each item should be encoded like key & value.
   - all types are allowed for key or value
-  - ASC items order
+  - encodes same items order
 
 __Examples:__
 
