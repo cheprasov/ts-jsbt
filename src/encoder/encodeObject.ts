@@ -3,56 +3,55 @@ import { JSBT } from '../JSBT';
 import { MAX_7_BYTES_INTEGER } from '../constants';
 import { IEncodeOptions } from '../types/IEncodeOptions';
 import { TObject } from '../types/TObject';
+import { isObject } from '../utils/vars/isObject';
+import { toChar } from '../utils/toChar';
+import { integerToBytes } from '../converter/integerToBytes';
 
-export const encodeObject = (arr: TObject, options?: IEncodeOptions): string => {
-    if (!Array.isArray(arr)) {
-        throw new Error(`Expecting "array" type, received "${arr}" (${typeof arr})`);
+const EMPTY_OBJECT_BYTE_CHAR = toChar(ETypeByteCode.Object & 0b1111_0000);
+
+export const encodeObject = (obj: TObject, options?: IEncodeOptions): string => {
+    if (!isObject(obj)) {
+        throw new Error(`Expecting "object" type, received "${obj}" (${typeof obj})`);
     }
 
-    if (arr.length === 0) {
-        return EMPTY_ARRAY_BYTE_CHAR;
+    const msgBody: string[] = [];
+    let count = 0;
+
+    for (const key in obj) {
+        if (!obj.hasOwnProperty(key)) {
+            continue;
+        }
+        msgBody.push(JSBT.encode(key, options));
+        msgBody.push(JSBT.encode(obj[key], options));
+        count += 1;
     }
 
-    if (arr.length > MAX_7_BYTES_INTEGER) {
-        throw new Error(`Provided array has too large length, limit ${MAX_7_BYTES_INTEGER}, received ${arr.length}`);
+    for (const sym of Object.getOwnPropertySymbols(obj)) {
+        msgBody.push(JSBT.encode(sym, options));
+        msgBody.push(JSBT.encode(obj[sym], options));
+        count += 1;
     }
 
-    const filledCount = getFilledItemsCount(arr);
-    const isSparseEncoding = filledCount / arr.length < SPARSE_RATE;
-    const bytes = integerToBytes(arr.length);
+    if (count === 0) {
+        return EMPTY_OBJECT_BYTE_CHAR;
+    }
 
-    const msg: string[] = [];
+    if (count > MAX_7_BYTES_INTEGER) {
+        throw new Error(`Provided object has too many props, limit ${MAX_7_BYTES_INTEGER}, received ${count}`);
+    }
+
+    const msgHeaders: string[] = [];
+    const countBytes = integerToBytes(count);
+
 
     // type byte
-    msg.push(toChar(
-        ETypeByteCode.Array
-        | ((0b0000_0111 & bytes.length)
-        | (isSparseEncoding ? 0b0000_1000 : 0))
+    msgHeaders.push(toChar(
+        ETypeByteCode.Object
+        | (0b0000_0111 & countBytes.length)
     ));
 
     // length
-    msg.push(toChar(...bytes));
+    msgHeaders.push(toChar(...countBytes));
 
-    if (isSparseEncoding) {
-        // Sparse Array Encoding
-        // Encode only filled items with keys
-
-        // Items count
-        const countBytes = integerToBytes(filledCount, bytes.length);
-        msg.push(toChar(...countBytes));
-
-        arr.forEach((item, index) => {
-            msg.push(encodeInteger(index));
-            msg.push(JSBT.encode(item, options));
-        });
-    } else {
-        // Dense Array Encoding
-        // Encode all items including Empty Values
-        for (let i = 0; i < arr.length; i += 1) {
-            const isEmptyValue = !(String(i) in arr);
-            msg.push(isEmptyValue ? encodeEmptyValue() : JSBT.encode(arr[i], options));
-        }
-    }
-
-    return msg.join('');
+    return msgHeaders.join('') + msgBody.join('');
 };
