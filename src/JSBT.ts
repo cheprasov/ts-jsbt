@@ -6,6 +6,7 @@ import { encodeInteger } from './encoder/encodeInteger';
 import { encodeNaN } from './encoder/encodeNaN';
 import { encodeNull } from './encoder/encodeNull';
 import { encodeObject } from './encoder/encodeObject';
+import { encodeSet } from './encoder/encodeSet';
 import { encodeString } from './encoder/encodeString';
 import { encodeTypedArray } from './encoder/encodeTypedArray';
 import { encodeUndefined } from './encoder/encodeUndefined';
@@ -13,6 +14,7 @@ import { IEncodeOptions } from './types/IEncodeOptions';
 import { isFloat } from './utils/vars/isFloat';
 import { isInteger } from './utils/vars/isInteger';
 import { isObject } from './utils/vars/isObject';
+import { isSet } from './utils/vars/isSet';
 import { isTypedArray } from './utils/vars/isTypedArray';
 
 export class JSBT {
@@ -53,6 +55,9 @@ export class JSBT {
                 }
                 if (isObject(value)) {
                     return encodeObject(value, options);
+                }
+                if (isSet(value)) {
+                    return encodeSet(value, options);
                 }
                 if (isTypedArray(value)) {
                     return encodeTypedArray(value, options);

@@ -315,7 +315,7 @@ sub-type 4 bits:
 __Note:__
 - Set can include any supported types (arrays, objects, numbers and so on)
 - Max allowed Set size is 256<sup>7</sup> - 1
-- ASC items order
+- Encodes same items order
 - Duplicated items are not allowed
 
 __Examples:__
