@@ -1,4 +1,5 @@
 import { encodeArray } from './encoder/encodeArray';
+import { encodeBigInt } from './encoder/encodeBigInt';
 import { encodeBoolean } from './encoder/encodeBoolean';
 import { encodeFloat } from './encoder/encodeFloat';
 import { encodeInfinity } from './encoder/encodeInfinity';
@@ -9,6 +10,7 @@ import { encodeNull } from './encoder/encodeNull';
 import { encodeObject } from './encoder/encodeObject';
 import { encodeSet } from './encoder/encodeSet';
 import { encodeString } from './encoder/encodeString';
+import { encodeSymbol } from './encoder/encodeSymbol';
 import { encodeTypedArray } from './encoder/encodeTypedArray';
 import { encodeUndefined } from './encoder/encodeUndefined';
 import { IEncodeOptions } from './types/IEncodeOptions';
@@ -68,6 +70,12 @@ export class JSBT {
                     return encodeTypedArray(value, options);
                 }
                 break;
+            }
+            case 'bigint': {
+                return encodeBigInt(value);
+            }
+            case 'symbol': {
+                return encodeSymbol(value);
             }
         }
 
