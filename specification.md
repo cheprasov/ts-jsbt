@@ -29,7 +29,7 @@ JavaScript Byte Translation
 `1001` - Maps  
 `1010` - Symbols  
 `1011` - Refs  
-`? 1100` - ?  
+`1100` - Copy Refs  
 `? 1101` - ? Combined String  
 `1110` - Additional types  
 `1111` - Instructions  
@@ -381,7 +381,7 @@ __Examples:__
 
 ## 11. Refs `[1011]`
 
-Ref is a not a separate type, it is a link that allows to use some type several time.  
+Ref is a not a separate type, it is a link that allows to use some value several time and encode it only once.  
 Also it allows to store different data with keeping references inside encoded data.
 
 Example:
@@ -421,16 +421,25 @@ console.log(data3.obj1.arr === data3.obj2.arr); // true
 
 type: `1011` <br>
 sub-type 4 bits:
-+ 1 bit mode:
-    - `0` - reserved.
-    - `1` - reserved.
-+ 3 bits for amount length bytes:
-    - `000` - creating a new ref for the following type.
-    - `001` - 1 byte for length (from 1 to 255 refs).
-    - `010` - 2 bytes for length (from 256 to 65,535 refs)
-    - `011` - 3 bytes for length (from 65536 to 1,677,7215 refs)
-    - ...
-    - `111` - 7 bytes for length (up to 256^<sup>7</sup> - 1 refs)
++ 1 bit for using mode:
+    + `0` - add values to ref library.
+    + `1` - getting value from ref library by ID.
++ 3 bits for:
+    + Adding ref mode:
+        - `000` - creating a new ref for the following type and use it.  
+        OR creating library from N values:
+        - `001` - 1 byte for items count (from 1 to 255 refs).
+        - `010` - 2 bytes for items count (from 256 to 65,535 refs)
+        - `011` - 3 bytes for items count (from 65536 to 1,677,7215 refs)
+        - ...
+        - `111` - 7 bytes for items count (up to 256^<sup>7</sup> - 1 refs)
+    + Using ref mode:
+        - `000` - using Ref ID 0.  
+        - `001` - 1 byte for ref ID from 1 to 255.
+        - `010` - 2 bytes for ref ID from  256 to 65,535.
+        - `011` - 3 bytes for ref ID from 65536 to 1,677,7215.
+        - ...
+        - `111` - 7 bytes for ref ID up to 256^<sup>7</sup> - 1 refs
 
 __Note:__
 - It can not be used as separate type and should be used always with other type for creating a ref..
@@ -439,16 +448,43 @@ __Note:__
 - All Symbols will be encode like `Symbol.for(...)`
 
 __Examples:__
-| ref                        | ref index | type   | rsv | length   |  using index   | encoding bytes | following type |
+| ref                        | ref index | type   | sub | length   |  using index   | encoding bytes | following type |
 |----------------------------|-----------|--------|-----|----------|----------------|----------------|----------------|
 | creating ref to `{foo:42}` | 0         | `1011` | `0` | `000`    |                |                | `<Object {foo:42}>` |
 | creating ref to `[1,2,3]`  | 1         | `1011` | `0` | `000`    |                |                | `<Array [1,2,3]>` |
 | creating ref to `"Alex"`   | 2         | `1011` | `0` | `000`    |                |                | `<String "Alex">` |
-| ref to `{foo:42}` by index |           | `1011` | `0` | `001`    | `00000000`     |                |                |
+| ref to `{foo:42}` by index |           | `1011` | `1` | `001`    | `00000000`     |                |                |
 | creating ref to `3.141592` | 3         | `1011` | `0` | `000`    |                |                | `<Float "3.141592">` |
-| ref to `[1,2,3]` by index  |           | `1011` | `0` | `001`    | `00000001`     |                |                |
-| ref to `"Alex"` by index   |           | `1011` | `0` | `001`    | `00000010`     |                |                |
-| ref to `3.141592` by index |           | `1011` | `0` | `001`    | `00000011`     |                |                |
+| ref to `[1,2,3]` by index  |           | `1011` | `1` | `001`    | `00000001`     |                |                |
+| ref to `"Alex"` by index   |           | `1011` | `1` | `001`    | `00000010`     |                |                |
+| ref to `3.141592` by index |           | `1011` | `1` | `001`    | `00000011`     |                |                |
+| creating ref to `{foo:43}` | 4         | `1011` | `0` | `000`    |                |                | `<Object {foo:43}>` |
+
+## 12. Copy Refs `[1100]`
+
+It is an additional helpers for Refs that allows not to copy equal values, just encode value as a copy.
+
+type: `1100` <br>
+sub-type 4 bits:
++ 1 bit reserved:
+    + `0` - reserved
+    + `1` - reserved
++ 3 bits for:
+    - `000` - using Ref ID 0.  
+    - `001` - 1 byte for ref ID from 1 to 255.
+    - `010` - 2 bytes for ref ID from  256 to 65,535.
+    - `011` - 3 bytes for ref ID from 65536 to 1,677,7215.
+    - ...
+    - `111` - 7 bytes for ref ID up to 256^<sup>7</sup> - 1 refs
+
+__Note:__
+- It can not be used as separate type and should be used always with other type for creating a ref..
+
+__Examples:__
+| ref                             | ref index | type   | rsv | length   |  using index   | encoding bytes | following type |
+|---------------------------------|-----------|--------|-----|----------|----------------|----------------|----------------|
+| copy of ref `{foo:42}` by index | 0         | `1100` | `0` | `001`    | `00000000`     |                |                |
+
 
 
 <style>

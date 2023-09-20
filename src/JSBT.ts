@@ -8,12 +8,16 @@ import { encodeMap } from './encoder/encodeMap';
 import { encodeNaN } from './encoder/encodeNaN';
 import { encodeNull } from './encoder/encodeNull';
 import { encodeObject } from './encoder/encodeObject';
+import { encodeRefCopy } from './encoder/encodeRefCopy';
+import { encodeRefCreating } from './encoder/encodeRefCreating';
+import { encodeRefUsing } from './encoder/encodeRefUsing';
 import { encodeSet } from './encoder/encodeSet';
 import { encodeString } from './encoder/encodeString';
 import { encodeSymbol } from './encoder/encodeSymbol';
 import { encodeTypedArray } from './encoder/encodeTypedArray';
 import { encodeUndefined } from './encoder/encodeUndefined';
-import { IEncodeOptions } from './types/IEncodeOptions';
+import { createEncodeOptions } from './encoder/options/createEncodeOptions';
+import { IEncodeOptions, IRefData } from './types/IEncodeOptions';
 import { isFloat } from './utils/vars/isFloat';
 import { isInteger } from './utils/vars/isInteger';
 import { isMap } from './utils/vars/isMap';
@@ -22,64 +26,140 @@ import { isSet } from './utils/vars/isSet';
 import { isTypedArray } from './utils/vars/isTypedArray';
 
 export class JSBT {
+    static encode(value: any, options: IEncodeOptions = createEncodeOptions()): string {
+        const isTopLevel = options.topLevel;
+        options.topLevel = false;
 
-    static encode(value: any, options?: IEncodeOptions): string {
+        const context = options.context;
+        const refData = context.refMap.get(value);
+        if (refData) {
+            refData.count += 1;
+            return refData.encodedRef;
+        }
+
+        let result: string | null = null;
+        let isRefAllowed: boolean = false;
+
         const type = typeof value;
         switch (type) {
             case 'undefined': {
-                return encodeUndefined();
+                isRefAllowed = false;
+                result = encodeUndefined();
+                break;
             }
             case 'boolean': {
-                return encodeBoolean(value);
+                isRefAllowed = false;
+                result = encodeBoolean(value);
+                break;
             }
             case 'number': {
                 if (isInteger(value)) {
-                    return encodeInteger(value);
+                    isRefAllowed = !isTopLevel && (value > 255 || value < -255);
+                    result = encodeInteger(value);
+                    break;
                 }
                 if (isFloat(value)) {
-                    return encodeFloat(value);
+                    isRefAllowed = !isTopLevel;
+                    result = encodeFloat(value);
+                    break;
                 }
                 if (Number.isNaN(value)) {
-                    return encodeNaN();
+                    isRefAllowed = !isTopLevel;
+                    result = encodeNaN();
+                    break;
                 }
                 if (value === Infinity || value === -Infinity) {
-                    return encodeInfinity(value);
+                    isRefAllowed = !isTopLevel;
+                    result = encodeInfinity(value);
+                    break;
                 }
                 break;
             }
             case 'string': {
-                return encodeString(value);
+                isRefAllowed = !isTopLevel && value.length > 2;
+                result = encodeString(value);
+                break;
             }
             case 'object': {
                 if (value === null) {
-                    return encodeNull();
+                    isRefAllowed = false;
+                    result = encodeNull();
+                    break;
                 }
                 if (Array.isArray(value)) {
-                    return encodeArray(value, options);
+                    isRefAllowed = true;
+                    result = encodeArray(value, options);
+                    break;
                 }
                 if (isObject(value)) {
-                    return encodeObject(value, options);
+                    isRefAllowed = true;
+                    result = encodeObject(value, options);
+                    break;
                 }
                 if (isSet(value)) {
-                    return encodeSet(value, options);
+                    isRefAllowed = true;
+                    result = encodeSet(value, options);
+                    break;
                 }
                 if (isMap(value)) {
-                    return encodeMap(value, options);
+                    isRefAllowed = true;
+                    result = encodeMap(value, options);
+                    break;
                 }
                 if (isTypedArray(value)) {
-                    return encodeTypedArray(value, options);
+                    isRefAllowed = !isTopLevel;
+                    result = encodeTypedArray(value, options);
+                    break;
                 }
                 break;
             }
             case 'bigint': {
-                return encodeBigInt(value);
+                isRefAllowed = !isTopLevel;
+                result = encodeBigInt(value);
+                break;
             }
             case 'symbol': {
-                return encodeSymbol(value);
+                isRefAllowed = !isTopLevel;
+                result = encodeSymbol(value);
+                break;
             }
         }
 
-        throw new Error(`Unsupported encoding value: "${value}", type: "${type}"`);
+        if (result === null) {
+            throw new Error(`Unsupported encoding value: "${value}", type: "${type}"`);
+        }
+
+        const refCopy = context.refCopy.get(result);
+        if (refCopy) {
+            return refCopy.encodedRefCopy;
+        }
+
+        if (isRefAllowed) {
+            const refId = context.refMap.size;
+            const refData: IRefData = {
+                count: 1,
+                encodedChars: result,
+                encodedRef: encodeRefUsing(refId, options),
+                encodedRefCopy: encodeRefCopy(refId, options),
+            };
+            context.refMap.set(value, refData);
+            context.refCopy.set(result, refData);
+            if (!isTopLevel) {
+                return refData.encodedRef;
+            }
+        }
+
+        if (isTopLevel && context.refMap.size) {
+            // encode all refs
+            const values: string[] = [];
+            context.refMap.forEach((refData) => {
+                values.push(refData.encodedChars);
+            });
+            const econdedRefs = encodeRefCreating(values, options);
+            return `${econdedRefs}${result}`;
+        }
+
+        return result;
     }
 
     static decode<T = any>(value: string): T {
