@@ -2,7 +2,9 @@ import { IEncodeOptions } from '../../types/IEncodeOptions';
 
 export const createEncodeOptions = (): IEncodeOptions => {
     return {
-        topLevel: true,
+        refs: {
+            enabled: false
+        },
         context: {
             refMap: new Map(),
             refCopy: new Map(),

@@ -5,8 +5,7 @@ import { toChar } from '../utils/toChar';
 import { integerToBytes } from '../converter/integerToBytes';
 import { isInteger } from '../utils/vars/isInteger';
 
-
-export const encodeRefUsing = (refId: number, options?: IEncodeOptions): string => {
+export const encodeRef = (mode: 'copy' | 'link', refId: number, options: IEncodeOptions): string => {
     if (!isInteger(refId)) {
         throw new Error(`Expecting "integer" type, received "${refId}" (${typeof refId})`);
     }
@@ -18,7 +17,11 @@ export const encodeRefUsing = (refId: number, options?: IEncodeOptions): string 
     const bytes = integerToBytes(refId);
 
     // type byte
-    msg.push(toChar(ETypeByteCode.Refs | (0b0000_1111 & bytes.length)));
+    msg.push(toChar(
+        ETypeByteCode.Refs
+        | (0b0000_0111 & bytes.length)
+        | (mode === 'copy' ? 0b0000_1000 : 0)
+    ));
     // encode bytes
     msg.push(toChar(...bytes));
 

@@ -7,9 +7,13 @@ export interface IArrayOptions {
 export interface ITypedArrayOptions {
 }
 
+export interface IRefsOptions {
+    enabled: boolean;
+}
+
 export interface IRefData {
-    count: number;
-    encodedChars: string;
+    refId: number;
+    encodedChars: string | null;
     encodedRef: string;
     encodedRefCopy: string;
 }
@@ -19,10 +23,12 @@ export interface IEncodingContext {
     refCopy: Map<string, IRefData>;
 }
 
+
+
 export interface IEncodeOptions {
-    topLevel: boolean,
     context: IEncodingContext,
     float?: IFloatOptions,
     array?: IArrayOptions,
     typedArray?: ITypedArrayOptions,
+    refs?: IRefsOptions;
 }

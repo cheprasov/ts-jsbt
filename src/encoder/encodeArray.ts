@@ -1,5 +1,4 @@
 import { ETypeByteCode } from '../enums/ETypeByteCode';
-import { JSBT } from '../JSBT';
 import { MAX_7_BYTES_INTEGER } from '../constants';
 import { integerToBytes } from '../converter/integerToBytes';
 import { IEncodeOptions } from '../types/IEncodeOptions';
@@ -7,12 +6,13 @@ import { getFilledItemsCount } from '../utils/arrays/getFilledItemsCount';
 import { toChar } from '../utils/toChar';
 import { encodeEmptyValue } from './encodeEmptyValue';
 import { encodeInteger } from './encodeInteger';
+import { encode } from './encode';
 
 const EMPTY_ARRAY_BYTE_CHAR = toChar(ETypeByteCode.Array & 0b1111_0000);
 
 const SPARSE_RATE = 0.5;
 
-export const encodeArray = (arr: any[], options?: IEncodeOptions): string => {
+export const encodeArray = (arr: any[], options: IEncodeOptions): string => {
     if (!Array.isArray(arr)) {
         throw new Error(`Expecting "array" type, received "${arr}" (${typeof arr})`);
     }
@@ -51,14 +51,14 @@ export const encodeArray = (arr: any[], options?: IEncodeOptions): string => {
 
         arr.forEach((item, index) => {
             msg.push(encodeInteger(index));
-            msg.push(JSBT.encode(item, options));
+            msg.push(encode(item, options));
         });
     } else {
         // Dense Array Encoding
         // Encode all items including Empty Values
         for (let i = 0; i < arr.length; i += 1) {
             const isEmptyValue = !(String(i) in arr);
-            msg.push(isEmptyValue ? encodeEmptyValue() : JSBT.encode(arr[i], options));
+            msg.push(isEmptyValue ? encodeEmptyValue() : encode(arr[i], options));
         }
     }
 

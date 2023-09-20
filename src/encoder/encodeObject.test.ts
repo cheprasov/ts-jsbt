@@ -1,14 +1,15 @@
 import { expectAsBinaryString } from '../_tests/utils/expectAsBinaryString';
 import { encodeObject } from './encodeObject';
+import { createEncodeOptions } from './options/createEncodeOptions';
 
 describe('encodeObject', () => {
     it('should encode object correctly', () => {
-        expectAsBinaryString(encodeObject({})).toEqual('01110000');
+        expectAsBinaryString(encodeObject({}, createEncodeOptions())).toEqual('01110000');
         expectAsBinaryString(
             encodeObject({
                 42: 'baz',
                 foo: 'bar',
-            })
+            }, createEncodeOptions())
         ).toEqual(
             '01110001 00000010 ' +
             // '42'
@@ -26,7 +27,7 @@ describe('encodeObject', () => {
                 foo: 42,
                 bar: null,
                 baz: true,
-            })
+            }, createEncodeOptions())
         ).toEqual(
             '01110001 00000011 ' +
             // foo
@@ -51,7 +52,7 @@ describe('encodeObject', () => {
                         foo: 43
                     },
                 },
-            })
+            }, createEncodeOptions())
         ).toEqual(
             '01110001 00000001 ' +
             // foo
@@ -75,7 +76,7 @@ describe('encodeObject', () => {
                 42: 'baz',
                 foo: Symbol.for('bar'),
                 [Symbol.for('foo')]: 'bar'
-            })
+            }, createEncodeOptions())
         ).toEqual(
             '01110001 00000011 ' +
             // '42'

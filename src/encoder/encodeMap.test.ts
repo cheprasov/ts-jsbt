@@ -1,14 +1,15 @@
 import { expectAsBinaryString } from '../_tests/utils/expectAsBinaryString';
 import { encodeMap } from './encodeMap';
+import { createEncodeOptions } from './options/createEncodeOptions';
 
 describe('encodeMap', () => {
     it('should encode object correctly', () => {
-        expectAsBinaryString(encodeMap(new Map())).toEqual('10010000');
+        expectAsBinaryString(encodeMap(new Map(), createEncodeOptions())).toEqual('10010000');
         expectAsBinaryString(
             encodeMap(new Map<any, any>([
                 [42, 'baz'],
                 ['foo', 'bar'],
-            ]))
+            ]), createEncodeOptions())
         ).toEqual(
             '10010001 00000010 ' +
             // 42
@@ -26,7 +27,7 @@ describe('encodeMap', () => {
                 ['foo', 42],
                 ['bar', null],
                 ['baz', true],
-            ]))
+            ]), createEncodeOptions())
         ).toEqual(
             '10010001 00000011 ' +
             // foo
@@ -57,7 +58,7 @@ describe('encodeMap', () => {
                         ],
                     ]),
                 ]
-            ]))
+            ]), createEncodeOptions())
         ).toEqual(
             '10010001 00000001 ' +
             // foo

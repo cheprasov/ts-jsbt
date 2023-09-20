@@ -1,14 +1,14 @@
 import { ETypeByteCode } from '../enums/ETypeByteCode';
-import { JSBT } from '../JSBT';
 import { MAX_7_BYTES_INTEGER } from '../constants';
 import { IEncodeOptions } from '../types/IEncodeOptions';
 import { toChar } from '../utils/toChar';
 import { integerToBytes } from '../converter/integerToBytes';
 import { isSet } from '../utils/vars/isSet';
+import { encode } from './encode';
 
 const EMPTY_SET_BYTE_CHAR = toChar(ETypeByteCode.Set & 0b1111_0000);
 
-export const encodeSet = (set: Set<any>, options?: IEncodeOptions): string => {
+export const encodeSet = (set: Set<any>, options: IEncodeOptions): string => {
     if (!isSet(set)) {
         throw new Error(`Expecting "set" type, received "${set}" (${typeof set})`);
     }
@@ -34,7 +34,7 @@ export const encodeSet = (set: Set<any>, options?: IEncodeOptions): string => {
     msg.push(toChar(...sizeBytes));
 
     set.forEach((value) => {
-        msg.push(JSBT.encode(value, options));
+        msg.push(encode(value, options));
     });
 
     return msg.join('');

@@ -1,11 +1,12 @@
 import { expectAsBinaryString } from '../_tests/utils/expectAsBinaryString';
 import { encodeSet } from './encodeSet';
+import { createEncodeOptions } from './options/createEncodeOptions';
 
 describe('encodeSet', () => {
     it('should encode object correctly', () => {
-        expectAsBinaryString(encodeSet(new Set())).toEqual('10000000');
+        expectAsBinaryString(encodeSet(new Set(), createEncodeOptions())).toEqual('10000000');
         expectAsBinaryString(
-            encodeSet(new Set(['42', 'baz', 'foo', 'bar']))
+            encodeSet(new Set(['42', 'baz', 'foo', 'bar']), createEncodeOptions())
         ).toEqual(
             '10000001 00000100 ' +
             // '42'
@@ -27,7 +28,7 @@ describe('encodeSet', () => {
                     42,
                     new Set(['foo', 43]),
                 ]),
-            ]))
+            ]), createEncodeOptions())
         ).toEqual(
             '10000001 00000010 ' +
             // foo

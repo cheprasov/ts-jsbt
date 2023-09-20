@@ -1,14 +1,14 @@
 import { ETypeByteCode } from '../enums/ETypeByteCode';
-import { JSBT } from '../JSBT';
 import { MAX_7_BYTES_INTEGER } from '../constants';
 import { IEncodeOptions } from '../types/IEncodeOptions';
 import { toChar } from '../utils/toChar';
 import { integerToBytes } from '../converter/integerToBytes';
 import { isMap } from '../utils/vars/isMap';
+import { encode } from './encode';
 
 const EMPTY_MAP_BYTE_CHAR = toChar(ETypeByteCode.Map & 0b1111_0000);
 
-export const encodeMap = (map: Map<any, any>, options?: IEncodeOptions): string => {
+export const encodeMap = (map: Map<any, any>, options: IEncodeOptions): string => {
     if (!isMap(map)) {
         throw new Error(`Expecting "map" type, received "${map}" (${typeof map})`);
     }
@@ -34,8 +34,8 @@ export const encodeMap = (map: Map<any, any>, options?: IEncodeOptions): string 
     msg.push(toChar(...sizeBytes));
 
     map.forEach((value, key) => {
-        msg.push(JSBT.encode(key, options));
-        msg.push(JSBT.encode(value, options));
+        msg.push(encode(key, options));
+        msg.push(encode(value, options));
     });
 
     return msg.join('');
