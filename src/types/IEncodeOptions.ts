@@ -13,17 +13,14 @@ export interface IRefsOptions {
 
 export interface IRefData {
     refId: number;
-    encodedChars: string | null;
-    encodedRef: string;
-    encodedRefCopy: string;
+    encodedRefLink: string | null;
+    encodedRefCopy: string | null;
 }
 
 export interface IEncodingContext {
     refMap: Map<any, IRefData>;
     refCopy: Map<string, IRefData>;
 }
-
-
 
 export interface IEncodeOptions {
     context: IEncodingContext,

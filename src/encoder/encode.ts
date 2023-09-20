@@ -30,15 +30,17 @@ export const encode = (value: any, options: IEncodeOptions): string => {
     if (isRefEnabled) {
         refData = context.refMap.get(value) || null;
         if (refData) {
-            return refData.encodedRef;
+            if (!refData.encodedRefLink) {
+                refData.encodedRefLink = encodeRef('link', refData.refId, options);
+            }
+            return refData.encodedRefLink;
         } else {
             const refId = context.refMap.size;
             refData = {
                 refId: refId,
-                encodedChars: null,
-                encodedRef: encodeRef('link', refId, options),
-                encodedRefCopy: encodeRef('copy', refId, options),
-            }
+                encodedRefLink: null,
+                encodedRefCopy: null,
+            };
             context.refMap.set(value, refData);
         }
     }
@@ -60,7 +62,7 @@ export const encode = (value: any, options: IEncodeOptions): string => {
         }
         case 'number': {
             if (isInteger(value)) {
-                isRefAllowed = (value > 255 || value < -255);
+                isRefAllowed = value > 255 || value < -255;
                 result = encodeInteger(value);
                 break;
             }
@@ -136,18 +138,20 @@ export const encode = (value: any, options: IEncodeOptions): string => {
     }
 
     if (refData) {
-        refData.encodedChars = result;
-    }
-
-    if (!isRefAllowed) {
-        context.refMap.delete(value);
-        return result;
-    }
-
-    const refCopy = context.refCopy.get(result);
-    if (refCopy) {
-        return refCopy.encodedRefCopy;
+        if (isRefAllowed) {
+            const refCopy = context.refCopy.get(result);
+            if (refCopy) {
+                if (!refData.encodedRefCopy) {
+                    refData.encodedRefCopy = encodeRef('copy', refCopy.refId, options);
+                }
+                return refData.encodedRefCopy;
+            } else {
+                context.refCopy.set(result, refData);
+            }
+        } else {
+            context.refMap.delete(value);
+        }
     }
 
     return result;
-}
+};

@@ -1,10 +1,12 @@
 import { encode } from './encoder/encode';
 import { createEncodeOptions } from './encoder/options/createEncodeOptions';
 
-
 export class JSBT {
     static encode(value: any): string {
         const options = createEncodeOptions();
+        options.refs = {
+            enabled: true,
+        };
         const result = encode(value, options);
         return result;
     }
