@@ -30,4 +30,30 @@ describe('ByteStream', () => {
         });
         expect(bytesToUtf16(bytes)).toEqual('Alex🇬🇧I💖JS');
     });
+
+    it('should throw error on reading more bytes for completed stream', async () => {
+        const stream = new ByteStream(['Alex']);
+        stream.completeStream();
+        await expect(async () => {
+            await stream.readBytes(5);
+        }).rejects.toEqual('Can not wait completed stream');
+    });
+
+    it('should throw error on waiting timeout', async () => {
+        const stream = new ByteStream(['Alex']);
+        await expect(async () => {
+            await stream.readBytes(5, 1000);
+        }).rejects.toEqual('Waiting timeout 1000ms is riched');
+    });
+
+    it('should read well bytes after waiting', async () => {
+        const stream = new ByteStream(['Alex']);
+        setTimeout(() => {
+            stream.addMessage(' 4');
+        }, 600);
+        setTimeout(() => {
+            stream.addMessage('2');
+        }, 1200);
+        expect(await stream.readBytes(7, 1000)).toEqual(new Uint8Array([65, 108, 101, 120, 32, 52, 50]));
+    });
 });

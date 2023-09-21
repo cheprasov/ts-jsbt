@@ -1,7 +1,3 @@
-
-export interface IByteStreamOptions {
-}
-
 export default class ByteStream {
 
     protected _msg: string[];
@@ -9,18 +5,13 @@ export default class ByteStream {
     protected _msgChrIndex: number = 0;
     protected _restByte: number = 0;
 
-    protected options: IByteStreamOptions;
     protected _isStreamComplete = false;
-    protected _isEOF = false;
 
     protected _waitingPromise: Promise<void> | null = null;
     protected _waitingPromiseResolver: (() => void) | null = null;
     protected _waitingRejectTimeout: NodeJS.Timeout | number | null = null;
 
-    constructor(msg: string | string[] = [], options: Partial<IByteStreamOptions> = {}) {
-        this.options = {
-            ...options,
-        }
+    constructor(msg: string | string[] = []) {
         this._msg = Array.isArray(msg) ? msg : [msg];
     }
 
@@ -29,6 +20,9 @@ export default class ByteStream {
             this._msg.push(...msg);
         } else {
             this._msg.push(msg);
+        }
+        if (this._waitingPromise && this._waitingPromiseResolver) {
+            this._waitingPromiseResolver();
         }
     }
 
@@ -41,22 +35,18 @@ export default class ByteStream {
         return this._isStreamComplete;
     }
 
-    isEOF(): boolean {
-        return this._isEOF;
-    }
-
     waitMessages(timeout: number): Promise<void> {
         if (this._waitingPromise) {
             return this._waitingPromise;
         }
         if (this._isStreamComplete) {
-            return Promise.reject('Can not wait, stream is complete')
+            return Promise.reject('Can not wait completed stream');
         }
         const promise = new Promise<void>((resolve, reject) => {
             this._waitingPromiseResolver = resolve;
 
             this._waitingRejectTimeout = setTimeout(() => {
-                reject('Timeout riched');
+                reject(`Waiting timeout ${timeout}ms is riched`);
             }, timeout);
         }).finally(() => {
             if (this._waitingRejectTimeout) {
@@ -72,7 +62,6 @@ export default class ByteStream {
     }
 
     async readBytes(count: number = 1, timeout: number = 30_000): Promise<Uint8Array> {
-        debugger;
         const uint8 = new Uint8Array(count);
         let uint8Len = 0;
 
@@ -92,13 +81,13 @@ export default class ByteStream {
             const block = this._msg[this._msgArrIndex];
             let charCode = block.charCodeAt(this._msgChrIndex);
             if (charCode > 255) {
-                this._restByte = (charCode & 0xFF00) >>> 8;
-                charCode = charCode & 0xFF;
+                this._restByte = (charCode & 0xff00) >>> 8;
+                charCode = charCode & 0xff;
             }
-            this._msgChrIndex += 1
+            this._msgChrIndex += 1;
 
             if (Number.isNaN(charCode)) {
-                this._msgArrIndex += 1
+                this._msgArrIndex += 1;
                 this._msgChrIndex = 0;
                 continue;
             }
