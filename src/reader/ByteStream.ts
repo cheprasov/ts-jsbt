@@ -149,4 +149,8 @@ export default class ByteStream {
         return bytes;
     }
 
+    readByte(): number {
+        return this.readBytes(1)[0];
+    }
+
 }

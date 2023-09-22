@@ -14,11 +14,11 @@ describe('decodeString', () => {
         ]);
         stream.completeStream();
 
-        expect(decodeString(stream.readBytes(1)[0], stream)).toBe('Alex 42');
-        expect(decodeString(stream.readBytes(1)[0], stream)).toBe('');
-        expect(decodeString(stream.readBytes(1)[0], stream)).toBe('🇬🇧');
-        expect(decodeString(stream.readBytes(1)[0], stream)).toBe('I💖JS');
-        expect(decodeString(stream.readBytes(1)[0], stream)).toBe('I💖JS'.repeat(35));
+        expect(decodeString(stream.readByte(), stream)).toBe('Alex 42');
+        expect(decodeString(stream.readByte(), stream)).toBe('');
+        expect(decodeString(stream.readByte(), stream)).toBe('🇬🇧');
+        expect(decodeString(stream.readByte(), stream)).toBe('I💖JS');
+        expect(decodeString(stream.readByte(), stream)).toBe('I💖JS'.repeat(35));
     });
 
 });
