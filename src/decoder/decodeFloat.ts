@@ -5,7 +5,6 @@ export const decodeFloat = (typeByte: number, stream: ByteStream): number => {
     if ((typeByte & 0b1111_0000) !== ETypeByteCode.Float) {
         throw new Error(`Provaded incorrect type ${typeByte} for decode float`);
     }
-    debugger;
     const count = (typeByte & 0b0000_0111) + 1;
     let map = 0b0000_0000;
 
@@ -23,7 +22,7 @@ export const decodeFloat = (typeByte: number, stream: ByteStream): number => {
 
     let byteIndex = 0;
     for (let i = 0; i < 8; i += 1) {
-        if (map & (0b1000_0000 >> i)) {
+        if (map & (0b1000_0000 >>> i)) {
             floatBytes[i] = bytesCount[byteIndex];
             byteIndex += 1;
         }
