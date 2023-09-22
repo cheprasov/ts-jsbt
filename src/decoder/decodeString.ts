@@ -3,8 +3,6 @@ import { bytesToUtf16 } from '../converter/bytesToUtf16';
 import { ETypeByteCode } from '../enums/ETypeByteCode';
 import ByteStream from '../reader/ByteStream';
 
-export type TConstant = true | false | null | undefined | typeof NaN | typeof Infinity | '' ;
-
 export const decodeString = (typeByte: number, stream: ByteStream): string => {
     if ((typeByte & 0b1111_0000) !== ETypeByteCode.String) {
         throw new Error(`Provaded incorrect type ${typeByte} for decode string`);
