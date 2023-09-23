@@ -3,7 +3,7 @@ import ByteStream from '../reader/ByteStream';
 
 export const decodeFloat = (typeByte: number, stream: ByteStream): number => {
     if ((typeByte & 0b1111_0000) !== ETypeByteCode.Float) {
-        throw new Error(`Provaded incorrect type ${typeByte} for decode float`);
+        throw new Error(`Provaded incorrect type ${typeByte} for decoding float`);
     }
     const count = (typeByte & 0b0000_0111) + 1;
     let map = 0b0000_0000;

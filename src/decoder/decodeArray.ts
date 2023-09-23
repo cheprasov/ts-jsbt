@@ -8,7 +8,7 @@ import { decodeInteger } from './decodeInteger';
 
 export const decodeArray = (typeByte: number, stream: ByteStream, options: IDecodeOptions): any[] => {
     if ((typeByte & 0b1111_0000) !== ETypeByteCode.Array) {
-        throw new Error(`Provaded incorrect type ${typeByte} for decode array`);
+        throw new Error(`Provaded incorrect type ${typeByte} for decoding array`);
     }
 
     const isKeyValueEncoding = typeByte & 0b0000_1000;

@@ -5,7 +5,7 @@ import ByteStream from '../reader/ByteStream';
 
 export const decodeBigInt = (typeByte: number, stream: ByteStream): bigint => {
     if ((typeByte & 0b1111_0000) !== ETypeByteCode.BigInt) {
-        throw new Error(`Provaded incorrect type ${typeByte} for decode bigint`);
+        throw new Error(`Provaded incorrect type ${typeByte} for decoding bigint`);
     }
 
     const count = typeByte & 0b0000_0111;

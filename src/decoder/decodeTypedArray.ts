@@ -48,7 +48,7 @@ export const decodeTypedArray = (
     options: IDecodeOptions
 ): TTypedArray | ArrayBuffer => {
     if ((typeByte & 0b1111_0000) !== ETypeByteCode.Typed_Array) {
-        throw new Error(`Provaded incorrect type ${typeByte} for decode typed array`);
+        throw new Error(`Provaded incorrect type ${typeByte} for decoding typed array`);
     }
     const secondByte = stream.readByte();
     const isKeyValueEncoding = secondByte & 0b0100_0000;

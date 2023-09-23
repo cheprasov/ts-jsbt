@@ -17,7 +17,7 @@ const constantMap = new Map<EConstantByteCode, TConstant>([
 
 export const decodeConstant = (typeByte: number, stream: ByteStream): TConstant => {
     if ((typeByte & 0b1111_0000) !== ETypeByteCode.Constant) {
-        throw new Error(`Provaded incorrect type ${typeByte} for decode contant`);
+        throw new Error(`Provaded incorrect type ${typeByte} for decoding contant`);
     }
     if (!constantMap.has(typeByte)) {
         throw new Error('Not supported contsant for decoding')
