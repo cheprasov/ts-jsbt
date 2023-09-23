@@ -244,7 +244,7 @@ Additional 1 byte for parameters:
   - 1 bit for encoding type:
     + `0` - encode only values
     + `1` - encode keys and values
-  - 3 bits for length bytes
+  - 3 bits for bytes length 
     + it should be `000` for only values encoding. (Length will be calculated by items count)
   - 3 bits for items count
 
@@ -438,7 +438,8 @@ __Note:__
 - It can not be used as separate type and should be used always like a link to already encoded type.
 
 __Examples:__
-`{ // refID  0 for the root object
+```
+{ // refID  0 for the root object
     foo: 'bar', // foo: refID 1 and bar: refID 2,
     baz: 1_000_000, // baz: refID 3 and 1_000_000: refID 4,
     ar: [ // refID 5
@@ -453,7 +454,8 @@ __Examples:__
         3, // refID 9 as the same value
         1_000_000 // refID 4 because it is duplicate
     ],
-}`
+}
+```
 | ref                        | ref ID | type   | copy | id lenght |  encoded ref ID |
 |----------------------------|--------|--------|------|-----------|-----------------|
 | creating ref to `foo`      | 1      | `1011` | `0`  | `001`     | `00000001`      |

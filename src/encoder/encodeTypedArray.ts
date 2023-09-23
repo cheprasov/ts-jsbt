@@ -25,7 +25,7 @@ const TYPED_ARRAY_CHAR_BY_NAME = {
     BigUint64Array: ETypedArrayByteCode.BigUint64Array,
 } as const;
 
-export const encodeTypedArray = (tarr: TTypedArray, options?: IEncodeOptions): string => {
+export const encodeTypedArray = (tarr: TTypedArray | ArrayBuffer, options?: IEncodeOptions): string => {
     if (!isTypedArray(tarr)) {
         throw new Error(`Expecting "typedArray" type, received "${tarr}" (${typeof tarr})`);
     }

@@ -7,6 +7,7 @@ import { decodeConstant } from './decodeConstant';
 import { decodeFloat } from './decodeFloat';
 import { decodeInteger } from './decodeInteger';
 import { decodeString } from './decodeString';
+import { decodeTypedArray } from './decodeTypedArray';
 
 export const decode = (typeByte: number | null, stream: ByteStream, options: IDecodeOptions): any => {
     const context = options.context;
@@ -48,6 +49,12 @@ export const decode = (typeByte: number | null, stream: ByteStream, options: IDe
         case ETypeByteCode.Array: {
             result = decodeArray(typeByte, stream, options);
             isResultReceived = true;
+            break;
+        }
+        case ETypeByteCode.Typed_Array: {
+            result = decodeTypedArray(typeByte, stream, options);
+            isResultReceived = true;
+            break;
         }
     }
 

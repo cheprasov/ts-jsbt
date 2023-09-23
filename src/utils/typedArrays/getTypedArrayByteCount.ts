@@ -1,6 +1,6 @@
 import { TTypedArray } from '../../types/TTypedArray';
 
-export const getBytesPerElement = (arr: TTypedArray): 1 | 2 | 4 | 8 => {
+export const getBytesPerElement = (arr: TTypedArray | ArrayBuffer): 1 | 2 | 4 | 8 => {
     if (arr instanceof ArrayBuffer) {
         return 1;
     }

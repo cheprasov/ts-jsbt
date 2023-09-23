@@ -1,4 +1,5 @@
 export type TTypedArray =
+    | ArrayBuffer
     | Int8Array
     | Uint8Array
     | Uint8ClampedArray

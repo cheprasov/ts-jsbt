@@ -1,6 +1,6 @@
 import { TTypedArray } from '../../types/TTypedArray';
 
-export const getFilledItemsCount = (arr: TTypedArray): number => {
+export const getFilledItemsCount = (arr: TTypedArray | ArrayBuffer): number => {
     let count = 0;
     const tarr = (arr instanceof ArrayBuffer) ? new Uint8Array(arr) : arr;
     tarr.forEach((item) => {

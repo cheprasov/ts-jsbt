@@ -7,7 +7,7 @@ interface IResults {
     encKeyValueSize: number;
 }
 
-export const calculateByteCountVariants = (tarr: TTypedArray): IResults => {
+export const calculateByteCountVariants = (tarr: TTypedArray | ArrayBuffer): IResults => {
     const arr = tarr instanceof ArrayBuffer ? new Uint8Array(tarr) : tarr;
     const bytesPerElement = getBytesPerElement(arr);
 
