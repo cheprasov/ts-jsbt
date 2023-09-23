@@ -3,7 +3,7 @@ import { ETypeByteCode } from '../enums/ETypeByteCode';
 import { ETypedArrayByteCode } from '../enums/ETypedArrayByteCode';
 import ByteStream from '../reader/ByteStream';
 import { IDecodeOptions } from '../types/IDecodeOptions';
-import { TClassMethod } from '../types/TClassMethod';
+import { TDataViewGetter } from '../types/TDataViewGetter';
 import { TTypedArray } from '../types/TTypedArray';
 import { getBytesPerElement } from '../utils/typedArrays/getTypedArrayByteCount';
 import { decodeInteger } from './decodeInteger';
@@ -27,7 +27,7 @@ const typedArrayConstructorByType: Record<number, TTypedArrayConstructor> = {
     [ETypedArrayByteCode.BigUint64Array]: BigInt64Array,
 };
 
-const dataViewGetter: Record<number,  string> = {
+const dataViewGetter: Record<number, TDataViewGetter> = {
     [ETypedArrayByteCode.ArrayBuffer]: 'getUint8',
     [ETypedArrayByteCode.Int8Array]: 'getInt8',
     [ETypedArrayByteCode.Uint8Array]: 'getUint8',
@@ -50,7 +50,6 @@ export const decodeTypedArray = (
     if ((typeByte & 0b1111_0000) !== ETypeByteCode.Typed_Array) {
         throw new Error(`Provaded incorrect type ${typeByte} for decode typed array`);
     }
-    debugger;
     const secondByte = stream.readByte();
     const isKeyValueEncoding = secondByte & 0b0100_0000;
 
@@ -67,8 +66,7 @@ export const decodeTypedArray = (
 
     const count = isKeyValueEncoding ? bytesToInteger(stream.readBytes(itemsBytesCount)) : len;
 
-
-    const dataGetterName = dataViewGetter[typeByte] as keyof DataView;
+    const dataGetterName = dataViewGetter[typeByte];
 
     if (isKeyValueEncoding) {
         const tarr = new TypedArrayConstructor(Math.round(len / bytesPerElement));
@@ -76,7 +74,7 @@ export const decodeTypedArray = (
             const key = decodeInteger(stream.readByte(), stream);
             const valueBytes = stream.readBytes(bytesPerElement);
             const view = new DataView(valueBytes.buffer);
-            tarr[key] = (view[dataGetterName] as any)(0, true);
+            tarr[key] = view[dataGetterName](0, true);
         }
         if (typeByte === ETypedArrayByteCode.ArrayBuffer) {
             return tarr.buffer;
@@ -86,7 +84,7 @@ export const decodeTypedArray = (
         const tarr = new TypedArrayConstructor(len);
         const view = new DataView(stream.readBytes(bytesPerElement * len).buffer);
         for (let i = 0; i < len; i += 1) {
-            tarr[i] = (view[dataGetterName] as any)(i * bytesPerElement, true);
+            tarr[i] = view[dataGetterName](i * bytesPerElement, true);
         }
         if (typeByte === ETypedArrayByteCode.ArrayBuffer) {
             return tarr.buffer;
