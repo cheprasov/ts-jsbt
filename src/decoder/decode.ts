@@ -6,7 +6,9 @@ import { decodeBigInt } from './decodeBigInt';
 import { decodeConstant } from './decodeConstant';
 import { decodeFloat } from './decodeFloat';
 import { decodeInteger } from './decodeInteger';
+import { decodeMap } from './decodeMap';
 import { decodeObject } from './decodeObject';
+import { decodeSet } from './decodeSet';
 import { decodeString } from './decodeString';
 import { decodeTypedArray } from './decodeTypedArray';
 
@@ -59,6 +61,16 @@ export const decode = (typeByte: number | null, stream: ByteStream, options: IDe
         }
         case ETypeByteCode.Object: {
             result = decodeObject(typeByte, stream, options);
+            isResultReceived = true;
+            break;
+        }
+        case ETypeByteCode.Set: {
+            result = decodeSet(typeByte, stream, options);
+            isResultReceived = true;
+            break;
+        }
+        case ETypeByteCode.Map: {
+            result = decodeMap(typeByte, stream, options);
             isResultReceived = true;
             break;
         }
