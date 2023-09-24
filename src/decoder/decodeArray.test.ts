@@ -3,14 +3,14 @@ import { createEncodeOptions } from '../encoder/options/createEncodeOptions';
 import ByteStream from '../reader/ByteStream';
 import { IDecodeOptions } from '../types/IDecodeOptions';
 import { decodeArray } from './decodeArray';
+import { createDecodeOptions } from './options/createDecodeOptions';
 
 const options = createEncodeOptions();
-const decodeOptions = {
-    context: {},
-} as IDecodeOptions;
 
 describe('decodeArray', () => {
     it('should decode array correct', () => {
+        const decodeOptions = createDecodeOptions();
+
         const stream = new ByteStream([
             encodeArray([1, 2, 3, 4, 5], options),
             encodeArray([1, 2, , 4, 5], options),

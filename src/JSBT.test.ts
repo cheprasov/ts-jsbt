@@ -58,4 +58,78 @@ describe('JSBT', () => {
             console.log('JSON', 'len', json.length, '\n', '\n');
         });
     });
+
+    describe('decode', () => {
+        it('should decode JSBT message correct', () => {
+            expect(JSBT.decode(JSBT.encode('Alex'))).toBe('Alex');
+            expect(JSBT.decode(JSBT.encode('🇬🇧'))).toBe('🇬🇧');
+            expect(JSBT.decode(JSBT.encode(''))).toBe('');
+            expect(JSBT.decode(JSBT.encode(true))).toBe(true);
+        });
+
+        it('should decode JSBT message with refs correct', () => {
+            expect(JSBT.decode(JSBT.encode(['Alex', 'Alex', 'Alex']))).toEqual(['Alex', 'Alex', 'Alex']);
+            expect(JSBT.decode(JSBT.encode(['Alex', 'Foo', 'Alex', 'Foo']))).toEqual(['Alex', 'Foo', 'Alex', 'Foo']);
+        });
+
+        it('should decode JSBT message with refs correct', () => {
+            const obj: any = {
+                userA: {
+                    name: 'Alex',
+                },
+                userB: {
+                    name: 'Alex',
+                },
+                userC: {
+                    name: 'Alex',
+                },
+            };
+            obj.userD = obj.userC;
+            const res = JSBT.decode(JSBT.encode(obj));
+            expect(res).toEqual(obj);
+            expect(res.userC).toBe(res.userD);
+            expect(res.userA).not.toBe(res.userB);
+            expect(res.userA).not.toBe(res.userC);
+            expect(res.userB).not.toBe(res.userC);
+        });
+
+        it('should decode JSBT message with refs correct', () => {
+            const obj: any = {
+                foo: 'bar',
+                baz: 1_000_000,
+                ar1: [1, 2, 3, 1_000_000],
+                ar2: [1, 2, 3, 1_000_000],
+                ar3: [1, 2, 3, 1_000_000],
+            };
+            obj.ar4 = obj.ar3;
+
+            const res = JSBT.decode(JSBT.encode(obj));
+            expect(res).toEqual(obj);
+
+            expect(res.ar3).toBe(res.ar4);
+            expect(res.ar1).not.toBe(res.ar2);
+            expect(res.ar1).not.toBe(res.ar3);
+            expect(res.ar2).not.toBe(res.ar3);
+        });
+
+        it('should decode JSBT message with refs correct', () => {
+            const obj: any = {
+                foo: 'bar',
+                ar: ['bar', 'bar', 'foo', 'foo'],
+                ar1: ['bar', 'bar', 'foo', 'foo'],
+                skips: [11, 42, true, false, NaN, undefined, null, +Infinity, -Infinity],
+                skipsAgain: [11, 42, true, false, NaN, undefined, null, +Infinity, -Infinity],
+                refs1: [3.1415, 123.456, 42000],
+                refs2: [3.1415, 123.456, 42000],
+            };
+            obj.ar2 = obj.ar1;
+            obj.refs3 = obj.refs2;
+
+            const res = JSBT.decode(JSBT.encode(obj));
+            expect(res).toEqual(obj);
+
+            expect(res.refs3).toBe(res.refs2);
+            expect(res.ar2).toBe(res.ar1);
+        });
+    });
 });

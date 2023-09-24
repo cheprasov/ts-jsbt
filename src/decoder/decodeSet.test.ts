@@ -1,16 +1,14 @@
 import { encodeSet } from '../encoder/encodeSet';
 import { createEncodeOptions } from '../encoder/options/createEncodeOptions';
 import ByteStream from '../reader/ByteStream';
-import { IDecodeOptions } from '../types/IDecodeOptions';
 import { decodeSet } from './decodeSet';
+import { createDecodeOptions } from './options/createDecodeOptions';
 
 const options = createEncodeOptions();
-const decodeOptions = {
-    context: {},
-} as IDecodeOptions;
 
 describe('decodeSet', () => {
     it('should decode object correct', () => {
+        const decodeOptions = createDecodeOptions();
         const stream = new ByteStream([
             encodeSet(new Set([42, 'baz', 'foo', 'bar']), options),
             encodeSet(new Set(), options),

@@ -72,12 +72,12 @@ export const encode = (value: any, options: IEncodeOptions): string => {
                 break;
             }
             if (Number.isNaN(value)) {
-                isRefAllowed = true;
+                isRefAllowed = false;
                 result = encodeNaN();
                 break;
             }
             if (value === Infinity || value === -Infinity) {
-                isRefAllowed = true;
+                isRefAllowed = false;
                 result = encodeInfinity(value);
                 break;
             }

@@ -1,7 +1,11 @@
+import { decode } from './decoder/decode';
+import { createDecodeOptions } from './decoder/options/createDecodeOptions';
 import { encode } from './encoder/encode';
 import { createEncodeOptions } from './encoder/options/createEncodeOptions';
+import ByteStream from './reader/ByteStream';
 
 export class JSBT {
+
     static encode(value: any): string {
         const options = createEncodeOptions();
         options.refs = {
@@ -11,7 +15,13 @@ export class JSBT {
         return result;
     }
 
-    static decode<T = any>(value: string): T {
-        return '' as T;
+    static decode<T = any>(value: string | string[] | number[]): T {
+        const stream = new ByteStream(value);
+        stream.completeStream();
+        const options = createDecodeOptions();
+
+        const result = decode(null, stream, options) as T;
+        return result;
     }
+
 }

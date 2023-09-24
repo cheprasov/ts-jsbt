@@ -1,6 +1,6 @@
 export default class ByteStream {
 
-    protected _msg: string[];
+    protected _msg: (string|number)[];
     protected _msgArrIndex: number = 0;
     protected _msgChrIndex: number = 0;
     protected _restByte: number = 0;
@@ -12,11 +12,21 @@ export default class ByteStream {
     protected _waitingPromiseResolver: (() => void) | null = null;
     protected _waitingRejectTimeout: NodeJS.Timeout | number | null = null;
 
-    constructor(msg: string | string[] = []) {
+    protected _readBytes: number[] = [];
+
+    constructor(msg: string | string[] | number[] = []) {
         this._msg = Array.isArray(msg) ? msg : [msg];
     }
 
-    addMessage(msg: string | string[]) {
+    getReadBytesIndex(): number {
+        return this._readBytes.length;
+    }
+
+    getReadBytes(): Readonly<number[]> {
+        return this._readBytes;
+    }
+
+    addMessage(msg: string | string[] | number[]) {
         if (Array.isArray(msg)) {
             this._msg.push(...msg);
         } else {
@@ -27,7 +37,7 @@ export default class ByteStream {
         }
     }
 
-    completeStream(msg: string | string[] = []) {
+    completeStream(msg: string | string[] | number[] = []) {
         this.addMessage(msg);
         this._isStreamComplete = true;
     }
@@ -87,14 +97,21 @@ export default class ByteStream {
                 return bytes.slice(0, bytesLen);
             }
 
-            const block = this._msg[this._msgArrIndex];
-            let charCode = block.charCodeAt(this._msgChrIndex);
-            if (charCode > 255) {
-                this._restByte = (charCode & 0xff00) >>> 8;
-                charCode = charCode & 0xff;
-            }
-            this._msgChrIndex += 1;
+            let charCode = NaN;
 
+            const block = this._msg[this._msgArrIndex];
+            if (typeof block === 'number') {
+                charCode = block;
+                this._msgChrIndex = 0;
+                this._msgArrIndex += 1;
+            } else {
+                charCode = block.charCodeAt(this._msgChrIndex);
+                if (charCode > 255) {
+                    this._restByte = (charCode & 0xff00) >>> 8;
+                    charCode = charCode & 0xff;
+                }
+                this._msgChrIndex += 1;
+            }
             if (Number.isNaN(charCode)) {
                 this._msgArrIndex += 1;
                 this._msgChrIndex = 0;
@@ -118,6 +135,7 @@ export default class ByteStream {
         while (bytesLen < count) {
             if (this._restByte) {
                 bytes[bytesLen] = this._restByte;
+                this._readBytes.push(this._restByte);
                 this._restByte = 0;
                 bytesLen += 1;
                 continue;
@@ -128,14 +146,21 @@ export default class ByteStream {
                 return bytes.slice(0, bytesLen);
             }
 
-            const block = this._msg[this._msgArrIndex];
-            let charCode = block.charCodeAt(this._msgChrIndex);
-            if (charCode > 255) {
-                this._restByte = (charCode & 0xff00) >>> 8;
-                charCode = charCode & 0xff;
-            }
-            this._msgChrIndex += 1;
+            let charCode = NaN;
 
+            const block = this._msg[this._msgArrIndex];
+            if (typeof block === 'number') {
+                charCode = block;
+                this._msgChrIndex = 0;
+                this._msgArrIndex += 1;
+            } else {
+                charCode = block.charCodeAt(this._msgChrIndex);
+                if (charCode > 255) {
+                    this._restByte = (charCode & 0xff00) >>> 8;
+                    charCode = charCode & 0xff;
+                }
+                this._msgChrIndex += 1;
+            }
             if (Number.isNaN(charCode)) {
                 this._msgArrIndex += 1;
                 this._msgChrIndex = 0;
@@ -143,6 +168,7 @@ export default class ByteStream {
             }
 
             bytes[bytesLen] = charCode;
+            this._readBytes.push(charCode);
             bytesLen += 1;
         }
 

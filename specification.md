@@ -439,22 +439,35 @@ __Note:__
 
 __Examples:__
 ```
-{ // refID  0 for the root object
-    foo: 'bar', // foo: refID 1 and bar: refID 2,
-    baz: 1_000_000, // baz: refID 3 and 1_000_000: refID 4,
-    ar: [ // refID 5
-        1, // refID 7
-        2, // refID 8
-        3, // refID 9
-        1_000_000 // refID 4 as the same value
-    ],
-    ar2: [ // refID 5 as copy duplicate  
-        1, // refID 7 as the same value
-        2, // refID 8 as the same value
-        3, // refID 9 as the same value
-        1_000_000 // refID 4 because it is duplicate
-    ],
-}
+const obj = {           // refId = 0
+    foo:                // refId = 1
+        'bar',          // refId = 2
+    baz:                // refId = 3
+        1_000_000,      // refId = 4
+    ar1:                // refId = 5
+        [               // refId = 6
+            1,          // no refs for small values
+            2,      
+            3,
+            1_000_000,  // link to refId 4
+        ],
+    ar2:                // refId = 7
+        [               // refId = 8
+            1,
+            2,
+            3,
+            1_000_000   // link to refId 4
+        ],
+    ar3:                // refId = 9
+        [               // refId = 10
+            1,
+            2,
+            3,
+            1_000_000   // link to refId 4
+        ],
+};
+obj.ar4 =               // refId = 11
+    obj.ar3;            // link to refId 10
 ```
 | ref                        | ref ID | type   | copy | id lenght |  encoded ref ID |
 |----------------------------|--------|--------|------|-----------|-----------------|

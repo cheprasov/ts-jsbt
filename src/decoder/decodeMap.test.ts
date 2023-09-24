@@ -1,16 +1,14 @@
 import { encodeMap } from '../encoder/encodeMap';
 import { createEncodeOptions } from '../encoder/options/createEncodeOptions';
 import ByteStream from '../reader/ByteStream';
-import { IDecodeOptions } from '../types/IDecodeOptions';
 import { decodeMap } from './decodeMap';
+import { createDecodeOptions } from './options/createDecodeOptions';
 
 const options = createEncodeOptions();
-const decodeOptions = {
-    context: {},
-} as IDecodeOptions;
 
 describe('decodeMap', () => {
     it('should decode object correct', () => {
+        const decodeOptions = createDecodeOptions();
         const stream = new ByteStream([
             encodeMap(
                 new Map<any, any>([
