@@ -10,6 +10,7 @@ import { decodeMap } from './decodeMap';
 import { decodeObject } from './decodeObject';
 import { decodeSet } from './decodeSet';
 import { decodeString } from './decodeString';
+import { decodeSymbol } from './decodeSymbol';
 import { decodeTypedArray } from './decodeTypedArray';
 
 export const decode = (typeByte: number | null, stream: ByteStream, options: IDecodeOptions): any => {
@@ -71,6 +72,11 @@ export const decode = (typeByte: number | null, stream: ByteStream, options: IDe
         }
         case ETypeByteCode.Map: {
             result = decodeMap(typeByte, stream, options);
+            isResultReceived = true;
+            break;
+        }
+        case ETypeByteCode.Symbol: {
+            result = decodeSymbol(typeByte, stream);
             isResultReceived = true;
             break;
         }
