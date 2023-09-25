@@ -20,6 +20,7 @@ export const decodeConstant = (typeByte: number, stream: ByteStream): TConstant 
         throw new Error(`Provaded incorrect type ${typeByte} for decoding contant`);
     }
     if (!constantMap.has(typeByte)) {
+        debugger;
         throw new Error('Not supported contsant for decoding')
     }
     return constantMap.get(typeByte);

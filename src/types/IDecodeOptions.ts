@@ -5,11 +5,9 @@ export interface IDecodeContext {
         index: number;
         length: number;
     }[];
+    readBytes: Readonly<number[]>;
 }
 
 export interface IDecodeOptions {
     context: IDecodeContext,
-    refs: {
-        readOnly: boolean,
-    },
 }

@@ -143,7 +143,8 @@ export default class ByteStream {
 
             if (!(this._msgArrIndex in this._msg)) {
                 this._isEOF = true;
-                return bytes.slice(0, bytesLen);
+                throw new Error(`Can not read ${count - bytesLen} bytes`);
+                // return bytes.slice(0, bytesLen);
             }
 
             let charCode = NaN;

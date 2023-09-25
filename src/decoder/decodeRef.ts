@@ -21,10 +21,9 @@ export const decodeRef = (typeByte: number, stream: ByteStream, options: IDecode
 
     if (isCopy) {
         const refSlice = options.context.refByteSlice[id];
-        const slice = stream.getReadBytes().slice(refSlice.index, refSlice.index + refSlice.length);
+        const slice = options.context.readBytes.slice(refSlice.index, refSlice.index + refSlice.length);
         const decOptions = createDecodeOptions();
         decOptions.context = options.context;
-        decOptions.refs.readOnly = true;
         const st = new ByteStream(slice);
         st.completeStream();
         const copy = decode(null, st, decOptions);

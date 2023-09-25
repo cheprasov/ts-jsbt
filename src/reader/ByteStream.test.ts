@@ -73,12 +73,12 @@ describe('ByteStream', () => {
         }).toThrowError('Sync bytes read is allowed only for completed stream')
     });
 
-    it('should return only availiable bytes and mark as EOF for completed stream', async () => {
+    it('should throw error on trying to read unavaliable bytes', () => {
         const stream = new ByteStream(['Alex']);
         stream.completeStream();
-        const bytes = stream.readBytes(20);
-        expect(bytes.byteLength).toEqual(4);
-        expect(stream.isEOF).toBeTruthy();
-        expect(bytesToUtf16(bytes)).toEqual('Alex');
+        expect(() => {
+            const bytes = stream.readBytes(20);
+        }).toThrowError('Can not read 16 bytes')
     });
+
 });

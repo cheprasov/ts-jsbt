@@ -1,27 +1,24 @@
+import { JSBT } from './JSBT';
 
-const ab = new ArrayBuffer(20);
+const data = {};
 
-const uint8 = new Uint8Array(ab);
+console.time('JSBT');
+const jsbt = JSBT.encode(data);
+console.timeEnd('JSBT');
+console.log(jsbt.length, jsbt);
 
-uint8[0] = 123;
-uint8[3] = 123123;
+console.time('JSON');
+const json = JSON.stringify(data);
+console.timeEnd('JSON');
+console.log(json.length);
 
-console.log(uint8, ab);
+console.time('JSBT');
+const res1 = JSBT.decode(jsbt);
+console.timeEnd('JSBT');
 
-const encoder = new TextEncoder();
-const view = encoder.encode("I💖JS");
-console.log(view);
-view.forEach(i => {
-    console.log(i, i.toString(2).padStart(8, '0'));
-});
+console.log(JSON.stringify(res1, null, 2));
+console.log(JSON.stringify(res1) === json);
 
-function strEncodeUTF16(str: string) {
-    var buf = new ArrayBuffer(str.length*2);
-    var bufView = new Uint16Array(buf);
-    for (var i=0, strLen=str.length; i < strLen; i++) {
-      bufView[i] = str.charCodeAt(i);
-    }
-    return bufView;
-  }
-
-console.log(strEncodeUTF16('I💖JS'), '💖'.charCodeAt(0), '💖'.charCodeAt(1));
+console.time('JSON');
+const res2 = JSON.parse(json);
+console.timeEnd('JSON');

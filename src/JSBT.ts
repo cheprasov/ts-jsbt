@@ -19,7 +19,7 @@ export class JSBT {
         const stream = new ByteStream(value);
         stream.completeStream();
         const options = createDecodeOptions();
-
+        options.context.readBytes = stream.getReadBytes();
         const result = decode(null, stream, options) as T;
         return result;
     }
