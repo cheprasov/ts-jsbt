@@ -144,5 +144,28 @@ describe('JSBT', () => {
             const res = JSBT.decode(JSBT.encode(user));
             expect(res).toEqual(user);
         });
+
+        it('should decode JSBT message with circular refs correct', () => {
+            const foo: any = {
+                bar: {},
+                baz: {}
+            };
+            foo.bar.baz = foo.baz;
+            foo.baz.bar = foo.bar;
+
+            const res = JSBT.decode(JSBT.encode(foo));
+            expect(res.bar.baz).toBe(res.baz);
+            expect(res.baz.bar).toBe(res.bar);
+        });
+
+        it('should decode JSBT message with dates correct', () => {
+            const birthdays: any = {
+                Alex: new Date('1984-10-10'),
+                Matvey: new Date('2021-09-16T17:52:00'),
+                Ira: new Date('1982-12-30'),
+            };
+            const res = JSBT.decode(JSBT.encode(birthdays));
+            expect(res).toEqual(birthdays);
+        });
     });
 });

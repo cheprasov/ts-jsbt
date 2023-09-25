@@ -4,6 +4,7 @@ import { IDecodeOptions } from '../types/IDecodeOptions';
 import { decodeArray } from './decodeArray';
 import { decodeBigInt } from './decodeBigInt';
 import { decodeConstant } from './decodeConstant';
+import { decodeDate } from './decodeDate';
 import { decodeFloat } from './decodeFloat';
 import { decodeInteger } from './decodeInteger';
 import { decodeMap } from './decodeMap';
@@ -37,6 +38,12 @@ export const decode = (typeByte: number | null, stream: ByteStream, options: IDe
     let isResultReceived: boolean = false;
 
     switch (type) {
+        case ETypeByteCode.Refs: {
+            result = decodeRef(typeByte, stream, options);
+            isResultReceived = true;
+            isRefAllowed = false;
+            break;
+        }
         case ETypeByteCode.Constant: {
             result = decodeConstant(typeByte, stream);
             isResultReceived = true;
@@ -102,10 +109,10 @@ export const decode = (typeByte: number | null, stream: ByteStream, options: IDe
             isRefAllowed = true;
             break;
         }
-        case ETypeByteCode.Refs: {
-            result = decodeRef(typeByte, stream, options);
+        case ETypeByteCode.Date: {
+            result = decodeDate(typeByte, stream);
             isResultReceived = true;
-            isRefAllowed = false;
+            isRefAllowed = Math.abs(result.getTime()) > 255;
             break;
         }
     }

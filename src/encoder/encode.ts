@@ -8,6 +8,7 @@ import { isTypedArray } from '../utils/vars/isTypedArray';
 import { encodeArray } from './encodeArray';
 import { encodeBigInt } from './encodeBigInt';
 import { encodeBoolean } from './encodeBoolean';
+import { encodeDate } from './encodeDate';
 import { encodeFloat } from './encodeFloat';
 import { encodeInfinity } from './encodeInfinity';
 import { encodeInteger } from './encodeInteger';
@@ -117,6 +118,11 @@ export const encode = (value: any, options: IEncodeOptions): string => {
             if (isTypedArray(value)) {
                 isRefAllowed = true;
                 result = encodeTypedArray(value, options);
+                break;
+            }
+            if (value instanceof Date) {
+                isRefAllowed = Math.abs(value.getTime()) > 255;
+                result = encodeDate(value, options);
                 break;
             }
             break;

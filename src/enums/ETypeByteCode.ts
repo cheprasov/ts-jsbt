@@ -11,4 +11,5 @@ export enum ETypeByteCode {
     Map         = 0b1001_0000,
     Symbol      = 0b1010_0000,
     Refs        = 0b1011_0000,
+    Date        = 0b1100_0000,
 }

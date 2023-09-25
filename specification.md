@@ -29,10 +29,10 @@ JavaScript Byte Translation
 `1001` - Maps  
 `1010` - Symbols  
 `1011` - Refs  
-`? 1100` -  
+`1100` - Dates  
 `? 1101` - ? Combined String  
-`1110` - Additional types  
-`1111` - Instructions  
+`? 1110` - ? 
+`? 1111` - ? Instructions  
 
 
 ## 0. Predefined Constants `[0000]`
@@ -474,6 +474,42 @@ obj.ar4 =               // refId = 11
 | creating ref to `foo`      | 1      | `1011` | `0`  | `001`     | `00000001`      |
 | creating ref to `1_000_000`| 4      | `1011` | `0`  | `001`     | `00000100`      |
 | creating ref to `ar[...]`  | 5      | `1011` | `1`  | `001`     | `00000101`      |
+
+
+## 2. Dates `[1100]`
+type: `1100` <br>
+sub-type 4 bits:
++ 1 bit for the sign:
+    - `0` - positive number
+    - `1` - negative number
++ 3 bits for amount of encoding bytes:
+    - `000` - 0 ms (1970-01-01T00:00:00.000Z).
+    - `001` - 1 byte length (from 1 to 255 ms).
+    - `010` - 2 bytes length (from 256 to 65,535 ms)
+    - `011` - 3 bytes length (from 65536 to 1,677,7215 ms)
+    - ...
+    - `111` - 7 bytes length (up to 256<sup>7</sup> - 1 ms)
++ Encoding number bytes at Little-Endian byte ordering (`0x78563412` => `12 34 56 78`).
+
+__Note:__
+- It is Little-Endian byte ordering (`0x78563412` => `12 34 56 78`)
+- Max possible number is 9007199254740991 ms (Number.MAX_SAFE_INTEGER)
+- Min possible number is -9007199254740991 ms (Number.MIN_SAFE_INTEGER)
+
+__Examples:__
+| date (ms)         | type   | sign | bytes amount | encoding bytes |
+|------------------ |--------|------|--------------|----------------|
+| 0                 | `1100` | `0`  | `000`        |                |
+|                   | `1100` | `1`  | `000`        |                |
+| 1                 | `1100` | `0`  | `001`        | `00000001`     |
+| -1                | `1100` | `1`  | `001`        | `00000001`     |
+| 42                | `1100` | `0`  | `001`        | `00101010`     |
+| 1_234_567_890     | `1100` | `0`  | `100`        | `11010010 00000010 10010110 01001001` |
+| 9007199254740990  | `1100` | `0`  | `111`        | `11111110 11111111 11111111 11111111 11111111 11111111 00011111` |
+| 9007199254740991  | `1100` | `0`  | `111`        | `11111111 11111111 11111111 11111111 11111111 11111111 00011111` |
+| -9007199254740991 | `1100` | `1`  | `111`        | `11111111 11111111 11111111 11111111 11111111 11111111 00011111` |
+
+
 
 <style>
 thead > tr  {
