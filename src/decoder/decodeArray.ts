@@ -6,7 +6,12 @@ import { IDecodeOptions } from '../types/IDecodeOptions';
 import { decode } from './decode';
 import { decodeInteger } from './decodeInteger';
 
-export const decodeArray = (typeByte: number, stream: ByteStream, options: IDecodeOptions): any[] => {
+export const decodeArray = (
+    typeByte: number,
+    stream: ByteStream,
+    options: IDecodeOptions,
+    initArr: any[] = []
+): any[] => {
     if ((typeByte & 0b1111_0000) !== ETypeByteCode.Array) {
         throw new Error(`Provaded incorrect type ${typeByte} for decoding array`);
     }
@@ -15,13 +20,13 @@ export const decodeArray = (typeByte: number, stream: ByteStream, options: IDeco
 
     const bytesCount = typeByte & 0b0000_0111;
     if (bytesCount === 0) {
-        return [];
+        return initArr;
     }
 
     const arrayLen = bytesToInteger(stream.readBytes(bytesCount));
     const itemsCoint = isKeyValueEncoding ? bytesToInteger(stream.readBytes(bytesCount)) : arrayLen;
 
-    const arr = [];
+    const arr = initArr;
     arr.length = arrayLen;
     if (isKeyValueEncoding) {
         for (let i = 0; i < itemsCoint; i += 1) {

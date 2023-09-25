@@ -7,7 +7,8 @@ import { decode } from './decode';
 export const decodeObject = (
     typeByte: number,
     stream: ByteStream,
-    options: IDecodeOptions
+    options: IDecodeOptions,
+    initObj: Record<string | symbol | number, any> = {}
 ): Record<string | symbol | number, any> => {
     if ((typeByte & 0b1111_0000) !== ETypeByteCode.Object) {
         throw new Error(`Provaded incorrect type ${typeByte} for decoding object`);
@@ -15,12 +16,12 @@ export const decodeObject = (
 
     const bytesCount = typeByte & 0b0000_0111;
     if (bytesCount === 0) {
-        return {};
+        return initObj;
     }
 
     const count = bytesToInteger(stream.readBytes(bytesCount));
 
-    const obj: Record<string | symbol | number, any> = {};
+    const obj: Record<string | symbol | number, any> = initObj;
 
     for (let i = 0; i < count; i += 1) {
         const key = decode(stream.readByte(), stream, options);

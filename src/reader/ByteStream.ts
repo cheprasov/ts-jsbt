@@ -15,7 +15,7 @@ export default class ByteStream {
     protected _readBytes: number[] = [];
 
     constructor(msg: string | string[] | number[] = []) {
-        this._msg = Array.isArray(msg) ? msg : [msg];
+        this._msg = Array.isArray(msg) ? [...msg] : [msg];
     }
 
     getReadBytesIndex(): number {
@@ -152,6 +152,7 @@ export default class ByteStream {
             if (typeof block === 'number') {
                 charCode = block;
                 this._msgChrIndex = 0;
+                delete this._msg[this._msgArrIndex];
                 this._msgArrIndex += 1;
             } else {
                 charCode = block.charCodeAt(this._msgChrIndex);
@@ -162,6 +163,7 @@ export default class ByteStream {
                 this._msgChrIndex += 1;
             }
             if (Number.isNaN(charCode)) {
+                delete this._msg[this._msgArrIndex];
                 this._msgArrIndex += 1;
                 this._msgChrIndex = 0;
                 continue;

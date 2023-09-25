@@ -7,7 +7,8 @@ import { decode } from './decode';
 export const decodeSet = (
     typeByte: number,
     stream: ByteStream,
-    options: IDecodeOptions
+    options: IDecodeOptions,
+    initSet: Set<any> = new Set(),
 ): Set<any> => {
     if ((typeByte & 0b1111_0000) !== ETypeByteCode.Set) {
         throw new Error(`Provaded incorrect type ${typeByte} for decoding set`);
@@ -15,12 +16,12 @@ export const decodeSet = (
 
     const bytesCount = typeByte & 0b0000_0111;
     if (bytesCount === 0) {
-        return new Set();
+        return initSet;
     }
 
     const count = bytesToInteger(stream.readBytes(bytesCount));
 
-    const set = new Set<any>();
+    const set = initSet;
 
     for (let i = 0; i < count; i += 1) {
         const value = decode(stream.readByte(), stream, options);

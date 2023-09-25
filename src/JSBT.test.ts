@@ -131,5 +131,18 @@ describe('JSBT', () => {
             expect(res.refs3).toBe(res.refs2);
             expect(res.ar2).toBe(res.ar1);
         });
+
+        it('should decode JSBT message with circular refs correct', () => {
+            const user: any = {
+                name: 'Alex',
+                friends: [],
+                set: new Set(),
+            };
+            user.friends.push(user);
+            user.set.add(user);
+
+            const res = JSBT.decode(JSBT.encode(user));
+            expect(res).toEqual(user);
+        });
     });
 });

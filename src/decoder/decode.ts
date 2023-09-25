@@ -22,11 +22,11 @@ export const decode = (typeByte: number | null, stream: ByteStream, options: IDe
     }
     const type = typeByte & 0b1111_0000;
 
-    const isRefLink = (type === ETypeByteCode.Refs);
+    const isRefEnabled = !(type === ETypeByteCode.Refs);
     const refId = refs.length;
     let isRefAllowed = true;
-    if (!isRefLink) {
-        refs.push(null); // keep place
+    if (isRefEnabled) {
+        refs.push(undefined); // keep place
         refByteSlice.push({
             index: stream.getReadBytesIndex() - 1,
             length: 0,
@@ -68,7 +68,7 @@ export const decode = (typeByte: number | null, stream: ByteStream, options: IDe
             break;
         }
         case ETypeByteCode.Array: {
-            result = decodeArray(typeByte, stream, options);
+            result = decodeArray(typeByte, stream, options, refs[refId] = []);
             isResultReceived = true;
             isRefAllowed = true;
             break;
@@ -79,19 +79,19 @@ export const decode = (typeByte: number | null, stream: ByteStream, options: IDe
             break;
         }
         case ETypeByteCode.Object: {
-            result = decodeObject(typeByte, stream, options);
+            result = decodeObject(typeByte, stream, options, refs[refId] = {});
             isResultReceived = true;
             isRefAllowed = true;
             break;
         }
         case ETypeByteCode.Set: {
-            result = decodeSet(typeByte, stream, options);
+            result = decodeSet(typeByte, stream, options, refs[refId] = new Set());
             isResultReceived = true;
             isRefAllowed = true;
             break;
         }
         case ETypeByteCode.Map: {
-            result = decodeMap(typeByte, stream, options);
+            result = decodeMap(typeByte, stream, options, refs[refId] = new Map());
             isResultReceived = true;
             isRefAllowed = true;
             break;
@@ -114,7 +114,7 @@ export const decode = (typeByte: number | null, stream: ByteStream, options: IDe
         throw new Error(`Unsupported decoding value: "${typeByte}"`);
     }
 
-    if (!isRefLink) {
+    if (isRefEnabled) {
         if (isRefAllowed) {
             refs[refId] = result;
             refByteSlice[refId].length = stream.getReadBytesIndex() - refByteSlice[refId].index;
