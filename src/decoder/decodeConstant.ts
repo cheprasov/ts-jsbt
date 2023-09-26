@@ -4,7 +4,7 @@ import ByteStream from '../reader/ByteStream';
 
 export type TConstant = true | false | null | undefined | typeof NaN | typeof Infinity | '' ;
 
-const constantMap = new Map<EConstantByteCode, TConstant>([
+export const constantMap = new Map<EConstantByteCode, TConstant>([
     [EConstantByteCode.FALSE, false],
     [EConstantByteCode.TRUE, true],
     [EConstantByteCode.Null, null],
@@ -20,7 +20,6 @@ export const decodeConstant = (typeByte: number, stream: ByteStream): TConstant 
         throw new Error(`Provaded incorrect type ${typeByte} for decoding contant`);
     }
     if (!constantMap.has(typeByte)) {
-        debugger;
         throw new Error('Not supported contsant for decoding')
     }
     return constantMap.get(typeByte);

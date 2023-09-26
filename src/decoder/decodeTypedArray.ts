@@ -12,7 +12,7 @@ export type TTypedArrayConstructor = {
     new (init: number): TTypedArray;
 };
 
-const typedArrayConstructorByType: Record<number, TTypedArrayConstructor> = {
+export const typedArrayConstructorByType: Record<number, TTypedArrayConstructor> = {
     [ETypedArrayByteCode.ArrayBuffer]: Uint8Array,
     [ETypedArrayByteCode.Int8Array]: Int8Array,
     [ETypedArrayByteCode.Uint8Array]: Uint8Array,
@@ -27,7 +27,7 @@ const typedArrayConstructorByType: Record<number, TTypedArrayConstructor> = {
     [ETypedArrayByteCode.BigUint64Array]: BigInt64Array,
 };
 
-const dataViewGetter: Record<number, TDataViewGetter> = {
+export const dataViewGetter: Record<number, TDataViewGetter> = {
     [ETypedArrayByteCode.ArrayBuffer]: 'getUint8',
     [ETypedArrayByteCode.Int8Array]: 'getInt8',
     [ETypedArrayByteCode.Uint8Array]: 'getUint8',

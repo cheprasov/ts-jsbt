@@ -1,4 +1,5 @@
 import { decode } from './decoder/decode';
+import { decodeStream } from './decoder/decodeStream';
 import { createDecodeOptions } from './decoder/options/createDecodeOptions';
 import { encode } from './encoder/encode';
 import { createEncodeOptions } from './encoder/options/createEncodeOptions';
@@ -20,8 +21,13 @@ export class JSBT {
         stream.completeStream();
         const options = createDecodeOptions();
         options.context.readBytes = stream.getReadBytes();
-        const result = decode(null, stream, options) as T;
-        return result;
+        return decode(null, stream, options) as T;
+    }
+
+    static async decodeStream<T = any>(stream: ByteStream): Promise<T> {
+        const options = createDecodeOptions();
+        options.context.readBytes = stream.getReadBytes();
+        return decodeStream(null, stream, options) as Promise<T>;
     }
 
 }

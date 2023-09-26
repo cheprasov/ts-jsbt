@@ -1,7 +1,6 @@
 import { encodeArray } from '../encoder/encodeArray';
 import { createEncodeOptions } from '../encoder/options/createEncodeOptions';
 import ByteStream from '../reader/ByteStream';
-import { IDecodeOptions } from '../types/IDecodeOptions';
 import { decodeArray } from './decodeArray';
 import { createDecodeOptions } from './options/createDecodeOptions';
 

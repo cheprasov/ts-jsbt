@@ -76,6 +76,7 @@ export default class ByteStream {
         return promise;
     }
 
+
     async readStreamBytes(count: number = 1, timeout: number = 30_000): Promise<Uint8Array> {
         const bytes = new Uint8Array(count);
         let bytesLen = 0;
@@ -83,6 +84,7 @@ export default class ByteStream {
         while (bytesLen < count) {
             if (this._restByte) {
                 bytes[bytesLen] = this._restByte;
+                this._readBytes.push(this._restByte);
                 this._restByte = 0;
                 bytesLen += 1;
                 continue;
@@ -94,7 +96,8 @@ export default class ByteStream {
                     continue;
                 }
                 this._isEOF = true;
-                return bytes.slice(0, bytesLen);
+                throw new Error(`Can not read ${count - bytesLen} bytes`);
+                //return bytes.slice(0, bytesLen);
             }
 
             let charCode = NaN;
@@ -103,6 +106,7 @@ export default class ByteStream {
             if (typeof block === 'number') {
                 charCode = block;
                 this._msgChrIndex = 0;
+                delete this._msg[this._msgArrIndex];
                 this._msgArrIndex += 1;
             } else {
                 charCode = block.charCodeAt(this._msgChrIndex);
@@ -113,16 +117,71 @@ export default class ByteStream {
                 this._msgChrIndex += 1;
             }
             if (Number.isNaN(charCode)) {
+                delete this._msg[this._msgArrIndex];
                 this._msgArrIndex += 1;
                 this._msgChrIndex = 0;
                 continue;
             }
 
             bytes[bytesLen] = charCode;
+            this._readBytes.push(charCode);
             bytesLen += 1;
         }
 
         return bytes;
+    }
+
+    // async readStreamBytes(count: number = 1, timeout: number = 30_000): Promise<Uint8Array> {
+    //     const bytes = new Uint8Array(count);
+    //     let bytesLen = 0;
+
+    //     while (bytesLen < count) {
+    //         if (this._restByte) {
+    //             bytes[bytesLen] = this._restByte;
+    //             this._restByte = 0;
+    //             bytesLen += 1;
+    //             continue;
+    //         }
+
+    //         if (!(this._msgArrIndex in this._msg)) {
+    //             if (!this._isStreamComplete) {
+    //                 await this.waitMessages(timeout);
+    //                 continue;
+    //             }
+    //             this._isEOF = true;
+    //             return bytes.slice(0, bytesLen);
+    //         }
+
+    //         let charCode = NaN;
+
+    //         const block = this._msg[this._msgArrIndex];
+    //         if (typeof block === 'number') {
+    //             charCode = block;
+    //             this._msgChrIndex = 0;
+    //             this._msgArrIndex += 1;
+    //         } else {
+    //             charCode = block.charCodeAt(this._msgChrIndex);
+    //             if (charCode > 255) {
+    //                 this._restByte = (charCode & 0xff00) >>> 8;
+    //                 charCode = charCode & 0xff;
+    //             }
+    //             this._msgChrIndex += 1;
+    //         }
+    //         if (Number.isNaN(charCode)) {
+    //             this._msgArrIndex += 1;
+    //             this._msgChrIndex = 0;
+    //             continue;
+    //         }
+
+    //         bytes[bytesLen] = charCode;
+    //         bytesLen += 1;
+    //     }
+
+    //     return bytes;
+    // }
+
+    async readStreamByte(): Promise<number> {
+        return (await this.readStreamBytes(1))[0];
     }
 
     readBytes(count: number = 1): Uint8Array {

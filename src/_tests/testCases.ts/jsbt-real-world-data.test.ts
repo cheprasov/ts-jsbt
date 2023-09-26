@@ -1,6 +1,6 @@
 import { JSBT } from '../../JSBT';
 
-const data = {
+export const data = {
     data: {
         FeatureFlags: {
             combinedFeatureFlagsByPageTypes: {

@@ -27,13 +27,12 @@ describe('ByteStream', () => {
         expect(bytesToUtf16(bytes)).toEqual('Alex🇬🇧I💖JS');
     });
 
-    it('should return only availiable bytes and mark as EOF for completed stream', async () => {
+    it('should throw error on trying to read stream unavaliable bytes', async () => {
         const stream = new ByteStream(['Alex']);
         stream.completeStream();
-        const bytes = await stream.readStreamBytes(20);
-        expect(bytes.byteLength).toEqual(4);
-        expect(stream.isEOF).toBeTruthy();
-        expect(bytesToUtf16(bytes)).toEqual('Alex');
+        await expect(async () => {
+            const bytes = await stream.readStreamBytes(20);
+        }).rejects.toHaveProperty('message', 'Can not read 16 bytes');
     });
 
     it('should throw error on waiting timeout', async () => {
@@ -78,7 +77,7 @@ describe('ByteStream', () => {
         stream.completeStream();
         expect(() => {
             const bytes = stream.readBytes(20);
-        }).toThrowError('Can not read 16 bytes')
+        }).toThrowError('Can not read 16 bytes');
     });
 
 });
