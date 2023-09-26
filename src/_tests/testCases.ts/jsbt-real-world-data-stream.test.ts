@@ -8,7 +8,7 @@ describe('Real World Data Structure', () => {
         const jsbt = JSBT.encode(data);
         const stream = new ByteStream();
 
-        delaySender(stream, [jsbt]);
+        delaySender(stream, [jsbt], 2);
 
         const res = await JSBT.decodeStream(stream);
         expect(res).toEqual(data);
