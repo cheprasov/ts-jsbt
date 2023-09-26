@@ -2,6 +2,7 @@ import { JSBT } from '../../JSBT';
 
 export const data = {
     data: {
+        userId: 758109698549,
         FeatureFlags: {
             combinedFeatureFlagsByPageTypes: {
                 atozdestinations: {
