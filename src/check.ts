@@ -1,24 +1,37 @@
 import { JSBT } from './JSBT';
 
-const data = {};
+const users: any = {
+    Alex: {
+        name: 'Alex',
+        age: 38,
+        country: 'UK',
+        children: null
+    },
+    Irina: {
+        name: 'Irina',
+        age: 40,
+        country: 'UK',
+        children: null,
+    },
+    Matvey: {
+        name: 'Matvey',
+        age: 2,
+        parents: null,
+    },
+};
 
-console.time('JSBT');
-const jsbt = JSBT.encode(data);
-console.timeEnd('JSBT');
-console.log(jsbt.length, jsbt);
+users.Alex.childred = users.Irina.childred = [users.Matvey];
 
-console.time('JSON');
-const json = JSON.stringify(data);
-console.timeEnd('JSON');
-console.log(json.length);
+users.Matvey.parents = [users.Alex, users.Irina];
 
-console.time('JSBT');
-const res1 = JSBT.decode(jsbt);
-console.timeEnd('JSBT');
+// Encode
+const encodedUsers = JSBT.encode(users);
 
-console.log(JSON.stringify(res1, null, 2));
-console.log(JSON.stringify(res1) === json);
+// Decode
+const decodedUsers = JSBT.decode(encodedUsers);
 
-console.time('JSON');
-const res2 = JSON.parse(json);
-console.timeEnd('JSON');
+console.log(decodedUsers)
+
+console.log(decodedUsers.Alex.childred === decodedUsers.Irina.childred);
+console.log(decodedUsers.Matvey.parents[0] === decodedUsers.Alex);
+console.log(decodedUsers.Matvey.parents[1] === decodedUsers.Irina);

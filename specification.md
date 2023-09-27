@@ -1,4 +1,4 @@
-# Specification JSBT
+# Specification JSBT v1.0.0
 JavaScript Byte Translation
 
 
