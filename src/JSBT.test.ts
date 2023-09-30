@@ -158,6 +158,46 @@ describe('JSBT', () => {
             const res = JSBT.decode(JSBT.encode(birthdays));
             expect(res).toEqual(birthdays);
         });
+
+        it('should decode primitive object wrappers correct', () => {
+            expect(
+                JSBT.decode(
+                    JSBT.encode([
+                        new Boolean(true),
+                        new Boolean(false),
+                        new Number(42),
+                        new Number(3.15),
+                        new String('bla-bla'),
+                        new Boolean(true),
+                        new Boolean(false),
+                        new Number(42),
+                        new Number(3.15),
+                        new String('bla-bla'),
+                        new Boolean(true),
+                        new Boolean(false),
+                        new Number(42),
+                        new Number(3.15),
+                        new String('bla-bla'),
+                    ])
+                )
+            ).toEqual([
+                new Boolean(true),
+                new Boolean(false),
+                new Number(42),
+                new Number(3.15),
+                new String('bla-bla'),
+                new Boolean(true),
+                new Boolean(false),
+                new Number(42),
+                new Number(3.15),
+                new String('bla-bla'),
+                new Boolean(true),
+                new Boolean(false),
+                new Number(42),
+                new Number(3.15),
+                new String('bla-bla'),
+            ]);
+        });
     });
 
     describe('decodeStream', () => {
@@ -250,7 +290,7 @@ describe('JSBT', () => {
                 JSBT.encode('foo'),
                 JSBT.encode('Alex'),
                 JSBT.encode('Alex'),
-                JSBT.encode(42)
+                JSBT.encode(42),
             ]);
 
             expect(await JSBT.decodeStream(stream)).toBe(42);
@@ -264,6 +304,45 @@ describe('JSBT', () => {
             expect(await JSBT.decodeStream(stream)).toBe('Alex');
             expect(await JSBT.decodeStream(stream)).toBe('Alex');
             expect(await JSBT.decodeStream(stream)).toBe(42);
+        });
+
+        it('should decode primitive object wrappers correct', async () => {
+            const stream = new ByteStream();
+            delaySender(stream, [JSBT.encode([
+                new Boolean(true),
+                new Boolean(false),
+                new Number(42),
+                new Number(3.15),
+                new String('bla-bla'),
+                new Boolean(true),
+                new Boolean(false),
+                new Number(42),
+                new Number(3.15),
+                new String('bla-bla'),
+                new Boolean(true),
+                new Boolean(false),
+                new Number(42),
+                new Number(3.15),
+                new String('bla-bla'),
+            ])]);
+
+            expect(await JSBT.decodeStream(stream)).toEqual([
+                new Boolean(true),
+                new Boolean(false),
+                new Number(42),
+                new Number(3.15),
+                new String('bla-bla'),
+                new Boolean(true),
+                new Boolean(false),
+                new Number(42),
+                new Number(3.15),
+                new String('bla-bla'),
+                new Boolean(true),
+                new Boolean(false),
+                new Number(42),
+                new Number(3.15),
+                new String('bla-bla'),
+            ]);
         });
     });
 });

@@ -1,4 +1,4 @@
-# Specification JSBT v1.0.0
+# Specification JSBT v1.1.0
 JavaScript Byte Translation
 
 
@@ -30,9 +30,9 @@ JavaScript Byte Translation
 `1010` - Symbols  
 `1011` - Refs  
 `1100` - Dates  
-`? 1101` - ? Combined String  
+`? 1101` - ?  
 `? 1110` - ? 
-`? 1111` - ? Instructions  
+`1111` - Instructions 
 
 
 ## 0. Predefined Constants `[0000]`
@@ -476,7 +476,7 @@ obj.ar4 =               // refId = 11
 | creating ref to `ar[...]`  | 5      | `1011` | `1`  | `001`     | `00000101`      |
 
 
-## 2. Dates `[1100]`
+## 12. Dates `[1100]`
 type: `1100` <br>
 sub-type 4 bits:
 + 1 bit for the sign:
@@ -509,6 +509,23 @@ __Examples:__
 | 9007199254740991  | `1100` | `0`  | `111`        | `11111111 11111111 11111111 11111111 11111111 11111111 00011111` |
 | -9007199254740991 | `1100` | `1`  | `111`        | `11111111 11111111 11111111 11111111 11111111 11111111 00011111` |
 
+## 13. Instructions `[1111]`
+Instructions are special definitions that describes how following structures should be encoded:
+
+type: `1111` <br>
+sub-type 4 bits:
++ 4 bits for instructions:
+    - `000` - Encode Primitive Types with Object Wrapper.
+
+__Note:__
+
+__Examples:__
+| instrution          | type   | instruction | encoding bytes     |
+|---------------------|--------|-------------|--------------------|
+| new Boolean(true)   | `1111` | `0000`      | `<Constant TRUE>`  |
+| new Number(42)      | `1111` | `0000`      | `<Integer 42>`     |
+| new Number(3.1415)  | `1111` | `0000`      | `<Float 3.1415>`   |
+| new String('Alex')  | `1111` | `0000`      | `<String "Alex">`  |
 
 
 <style>

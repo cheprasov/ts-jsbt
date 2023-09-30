@@ -11,5 +11,6 @@ export declare enum ETypeByteCode {
     Map = 144,
     Symbol = 160,
     Refs = 176,
-    Date = 192
+    Date = 192,
+    Instruction = 240
 }

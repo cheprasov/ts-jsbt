@@ -9,6 +9,7 @@ import { decodeFloat } from './decodeFloat';
 import { decodeInteger } from './decodeInteger';
 import { decodeMap } from './decodeMap';
 import { decodeObject } from './decodeObject';
+import { decodePrimitiveObjectWrapper } from './decodePrimitiveObjectWrapper';
 import { decodeRef } from './decodeRef';
 import { decodeSet } from './decodeSet';
 import { decodeString } from './decodeString';
@@ -53,7 +54,7 @@ export const decode = (typeByte: number | null, stream: ByteStream, options: IDe
         case ETypeByteCode.String: {
             result = decodeString(typeByte, stream);
             isResultReceived = true;
-            isRefAllowed = result.length > 2
+            isRefAllowed = result.length > 2;
             break;
         }
         case ETypeByteCode.Integer: {
@@ -75,7 +76,7 @@ export const decode = (typeByte: number | null, stream: ByteStream, options: IDe
             break;
         }
         case ETypeByteCode.Array: {
-            result = decodeArray(typeByte, stream, options, refs[refId] = []);
+            result = decodeArray(typeByte, stream, options, (refs[refId] = []));
             isResultReceived = true;
             isRefAllowed = true;
             break;
@@ -86,19 +87,19 @@ export const decode = (typeByte: number | null, stream: ByteStream, options: IDe
             break;
         }
         case ETypeByteCode.Object: {
-            result = decodeObject(typeByte, stream, options, refs[refId] = {});
+            result = decodeObject(typeByte, stream, options, (refs[refId] = {}));
             isResultReceived = true;
             isRefAllowed = true;
             break;
         }
         case ETypeByteCode.Set: {
-            result = decodeSet(typeByte, stream, options, refs[refId] = new Set());
+            result = decodeSet(typeByte, stream, options, (refs[refId] = new Set()));
             isResultReceived = true;
             isRefAllowed = true;
             break;
         }
         case ETypeByteCode.Map: {
-            result = decodeMap(typeByte, stream, options, refs[refId] = new Map());
+            result = decodeMap(typeByte, stream, options, (refs[refId] = new Map()));
             isResultReceived = true;
             isRefAllowed = true;
             break;
@@ -113,6 +114,21 @@ export const decode = (typeByte: number | null, stream: ByteStream, options: IDe
             result = decodeDate(typeByte, stream);
             isResultReceived = true;
             isRefAllowed = Math.abs(result.getTime()) > 255;
+            break;
+        }
+        case ETypeByteCode.Instruction: {
+            switch (typeByte) {
+                case (ETypeByteCode.Instruction | 0b1111_0000): {
+                    // Primitive Object Wrapper
+                    result = decodePrimitiveObjectWrapper(typeByte, stream, options);
+                    isResultReceived = true;
+                    isRefAllowed = true;
+                    break;
+                }
+                default: {
+                    throw new Error(`Not supported instruction ${typeByte}`);
+                }
+            }
             break;
         }
     }

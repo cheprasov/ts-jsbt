@@ -12,4 +12,5 @@ export enum ETypeByteCode {
     Symbol      = 0b1010_0000,
     Refs        = 0b1011_0000,
     Date        = 0b1100_0000,
+    Instruction = 0b1111_0000,
 }

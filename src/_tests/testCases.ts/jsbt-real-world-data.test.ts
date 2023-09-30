@@ -744,18 +744,18 @@ export const data = {
                     IncreasedMinMaxMargin: {
                         experimentId: 'TrtmKlSQ',
                         variantId: '6w5warhyp',
-                        value: true,
+                        value: new Boolean(true),
                     },
                 },
                 hdp_ho: {
                     BookEmailDealInBasket: {
-                        value: true,
+                        value: new Boolean(true),
                     },
                     AlternativeFlightsOpenedByDefault: {
-                        value: false,
+                        value: new Boolean(false),
                     },
                     CookiePreferences: {
-                        value: true,
+                        value: new Boolean(true),
                     },
                     NewsletterEnabled: {
                         value: true,

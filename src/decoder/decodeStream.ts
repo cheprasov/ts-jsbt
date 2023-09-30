@@ -9,6 +9,7 @@ import { decodeFloatStream } from './decodeFloatStream';
 import { decodeIntegerStream } from './decodeIntegerStream';
 import { decodeMapStream } from './decodeMapStream';
 import { decodeObjectStream } from './decodeObjectStream';
+import { decodePrimitiveObjectWrapperStream } from './decodePrimitiveObjectWrapperStream';
 import { decodeRefStream } from './decodeRefStream';
 import { decodeSetStream } from './decodeSetStream';
 import { decodeStringStream } from './decodeStringStream';
@@ -117,6 +118,21 @@ export const decodeStream = async (
             result = await decodeDateStream(typeByte, stream);
             isResultReceived = true;
             isRefAllowed = Math.abs(result.getTime()) > 255;
+            break;
+        }
+        case ETypeByteCode.Instruction: {
+            switch (typeByte) {
+                case (ETypeByteCode.Instruction | 0b1111_0000): {
+                    // Primitive Object Wrapper
+                    result = await decodePrimitiveObjectWrapperStream(typeByte, stream, options);
+                    isResultReceived = true;
+                    isRefAllowed = true;
+                    break;
+                }
+                default: {
+                    throw new Error(`Not supported instruction ${typeByte}`);
+                }
+            }
             break;
         }
     }

@@ -1,6 +1,6 @@
 [![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
 
-@cheprasov/jsbt (v1.0.0)
+@cheprasov/jsbt (v1.1.0)
 =========
 
 JSBT is a library for serializing structured JavaScript data. The library is JavaScript oriented and tries to resolve JS needs for better data serialization. 
@@ -8,8 +8,9 @@ JSBT is a library for serializing structured JavaScript data. The library is Jav
 ### Features:
 - Super easy to use (serialization works straight away without using any predefined schemas or structure descriptions).
 - Supports main JS types: booleans, numbers (as integers or float), bigints, arrays, typed arrays, objects, sets, maps, symbols, dates.
+- Allows encode and decode Object Wrappers for primitive values.
 - Created for communication between services written at JavaScript / TypeScript. (Node <-> Browser, Node <-> Node, Browser <-> Browser and so on).
-- Optimized for performance and compact.
+- Optimized for performance and compact size.
 - Size optimisation for repeated key or values.
 - Supports circular data dependencies.
 - Supports serialization for linked objects.

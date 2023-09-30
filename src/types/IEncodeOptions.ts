@@ -1,10 +1,5 @@
-export interface IFloatOptions {
-}
-
-export interface IArrayOptions {
-}
-
-export interface ITypedArrayOptions {
+export interface IPrimitivesOptions {
+    objectWrappersAsPrimitiveValue: boolean;
 }
 
 export interface IRefsOptions {
@@ -24,8 +19,6 @@ export interface IEncodingContext {
 
 export interface IEncodeOptions {
     context: IEncodingContext,
-    float?: IFloatOptions,
-    array?: IArrayOptions,
-    typedArray?: ITypedArrayOptions,
-    refs?: IRefsOptions;
+    refs: IRefsOptions;
+    primitives: IPrimitivesOptions;
 }

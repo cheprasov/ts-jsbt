@@ -9,5 +9,8 @@ export const createEncodeOptions = (): IEncodeOptions => {
             refMap: new Map(),
             refCopy: new Map(),
         },
+        primitives: {
+            objectWrappersAsPrimitiveValue: false,
+        }
     }
 }
