@@ -1,38 +1,34 @@
 import { JSBT } from './JSBT';
 
-const users: any = {
-    Alex: {
-        name: 'Alex',
-        age: 38,
-        country: 'UK',
-        children: null
-    },
-    Irina: {
-        name: 'Irina',
-        age: 40,
-        country: 'UK',
-        children: null,
-    },
-    Matvey: {
-        name: 'Matvey',
-        age: 2,
-        parents: null,
-    },
-};
+export class User {
 
-users.Alex.children = users.Irina.children = [users.Matvey];
+    protected _name: string;
+    protected _email: string;
 
-users.Matvey.parents = [users.Alex, users.Irina];
+    constructor(name: string, email: string) {
+        this._name = name;
+        this._email = email;
+    }
+
+    toJSBT() { // or toJSON
+        return {
+            name: this._name,
+            email: this._email,
+        };
+    }
+
+}
+
+const user = new User('Alex', 'alex@test.com');
 
 // Encode
-const encodedUsers = JSBT.encode(users);
-console.log(encodedUsers.length); // 112
+const encodedUser = JSBT.encode(user);
 
 // Decode
-const decodedUsers = JSBT.decode(encodedUsers);
+const decodedUser = JSBT.decode(encodedUser);
 
-console.log(decodedUsers)
+console.log(decodedUser);
+// { name: 'Alex', email: 'alex@test.com' }
 
-console.log(decodedUsers.Alex.children === decodedUsers.Irina.children);
-console.log(decodedUsers.Matvey.parents[0] === decodedUsers.Alex);
-console.log(decodedUsers.Matvey.parents[1] === decodedUsers.Irina);
+console.log('Construnctor Name: ', decodedUser.__jsbtConstructorName);
+// Construnctor Name: User

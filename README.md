@@ -1,6 +1,6 @@
 [![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
 
-@cheprasov/jsbt (v1.1.0)
+@cheprasov/jsbt (v1.2.0)
 =========
 
 JSBT is a library for serializing structured JavaScript data. The library is JavaScript oriented and tries to resolve JS needs for better data serialization. 
@@ -99,6 +99,53 @@ console.log(decodedUsers)
 console.log(decodedUsers.Alex.children === decodedUsers.Irina.children);
 console.log(decodedUsers.Matvey.parents[0] === decodedUsers.Alex);
 console.log(decodedUsers.Matvey.parents[1] === decodedUsers.Irina);
+```
+
+#### 2.3 Encoding and decoding instances of a Class
+
+For getting props for Encoding Class Instances it will be used first found of the following methods:
+- `toJSBT()`
+- `toJSON()`
+- `valueOf()`
+
+Instance will be encoded like a object simple with props.
+Also the decoded object would have configurable, not enumerable and not writable prop `__jsbtConstructorName` with construcor name of encoded instance. 
+
+```javascript
+import { JSBT } from '@cheprasov/jsbt';
+
+export class User {
+
+    protected _name: string;
+    protected _email: string;
+
+    constructor(name: string, email: string) {
+        this._name = name;
+        this._email = email;
+    }
+
+    toJSBT() { // or toJSON
+        return {
+            name: this._name,
+            email: this._email,
+        };
+    }
+
+}
+
+const user = new User('Alex', 'alex@test.com');
+
+// Encode
+const encodedUser = JSBT.encode(user);
+
+// Decode
+const decodedUser = JSBT.decode(encodedUser);
+
+console.log(decodedUser);
+// { name: 'Alex', email: 'alex@test.com' }
+
+console.log('Construnctor Name: ', decodedUser.__jsbtConstructorName);
+// Construnctor Name: User
 ```
 
 ### 3. How to use

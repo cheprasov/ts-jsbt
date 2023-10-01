@@ -1,6 +1,15 @@
 import { JSBT } from '../../JSBT';
+import { User } from '../classes/User';
+
+const user1 = new User('Alex', 'alex@test.com');
+const user2 = new User('Test', 'test@test.com');
 
 export const data = {
+    userA: user1,
+    userB: user1,
+    userC: user1,
+    userD: user2,
+    userE: user2,
     data: {
         userId: 758109698549,
         FeatureFlags: {
@@ -2984,7 +2993,16 @@ describe('Real World Data Structure', () => {
     it('should encode and decode the object correct', () => {
         const jsbt = JSBT.encode(data);
         const res = JSBT.decode(jsbt);
-        expect(res).toEqual(data);
+        const u1 = data.userA.toJSBT();
+        const u2 = data.userD.toJSBT();
+        expect(res).toEqual({
+            ...data,
+            userA: u1,
+            userB: u1,
+            userC: u1,
+            userD: u2,
+            userE: u2,
+        });
         expect(res).not.toBe(data);
     });
 });

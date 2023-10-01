@@ -9,9 +9,17 @@ describe('Real World Data Structure', () => {
         const stream = new ByteStream();
 
         delaySender(stream, [jsbt], 2);
-
         const res = await JSBT.decodeStream(stream);
-        expect(res).toEqual(data);
+        const u1 = data.userA.toJSBT();
+        const u2 = data.userD.toJSBT();
+        expect(res).toEqual({
+            ...data,
+            userA: u1,
+            userB: u1,
+            userC: u1,
+            userD: u2,
+            userE: u2,
+        });
         expect(res).not.toBe(data);
     }, 35_000);
 });

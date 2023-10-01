@@ -7,5 +7,8 @@ export const createDecodeOptions = (): IDecodeOptions => {
             refByteSlice: [],
             readBytes: [],
         },
+        objects: {
+            classInstanceConstructorNameKey: '__jsbtConstructorName',
+        }
     }
 }

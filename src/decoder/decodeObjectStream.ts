@@ -21,12 +21,27 @@ export const decodeObjectStream = async (
 
     const count = bytesToInteger(await stream.readStreamBytes(bytesCount));
 
+    const isClassInstance = Boolean(typeByte & 0b0000_1000);
+    const constructorName = isClassInstance ? await decodeStream(null, stream, options) : null;
+
     const obj: Record<string | symbol | number, any> = initObj;
 
     for (let i = 0; i < count; i += 1) {
-        const key = await decodeStream(await stream.readStreamByte(), stream, options);
-        const value = await decodeStream(await stream.readStreamByte(), stream, options);
+        const key = await decodeStream(null, stream, options);
+        const value = await decodeStream(null, stream, options);
         obj[key] = value;
+    }
+
+    if (isClassInstance) {
+        const constructorNameKey = options.objects.classInstanceConstructorNameKey;
+        if (constructorNameKey !== null) {
+            Object.defineProperty(obj, constructorNameKey, {
+                value: constructorName,
+                configurable: true,
+                enumerable: false,
+                writable: false,
+            })
+        }
     }
 
     return obj;

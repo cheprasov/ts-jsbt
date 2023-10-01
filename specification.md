@@ -1,4 +1,4 @@
-# Specification JSBT v1.1.0
+# Specification JSBT v1.2.0
 JavaScript Byte Translation
 
 
@@ -269,8 +269,9 @@ __Examples:__
 ## 7. Objects `[0111]`
 type: `0111` <br>
 sub-type 4 bits:
-+ 1 bit reserved:
-    - `0`
++ 1 bit encoding class instance:
+    - `0` - encoding object
+    - `1` - encoding class instance
 + 3 bits for properties amount:
     - `000` - Empty object (without properties).
     - `001` - 1 byte for 1 to 255 properties.
@@ -279,6 +280,7 @@ sub-type 4 bits:
     - ...
     - `111` - 7 bytes for up to 256<sup>7</sup> - 1 properties.
 + 1-7 bytes for encoding properies count
++ Encoded <String ConstructorName> for class instances
 + Encoding bytes:
   - each property should be encoded like key & value.
   - allowed types for Object keys are `String`, `Integer`, `Symbol`.
@@ -288,14 +290,23 @@ __Note:__
 - Remember, JS convertes `Integer`, `Float`, `BigInt` types to `String` for object key.
 - All Symbols will be converted via `Symbol.for(...)`.
 
+__Class Instance Note:__
+- After length bytes (and before props) should be encoded constructor name as String value;
+- For getting props for Encoding Class Instances it will be used first of the following methods:
+    + `toJSBT()`
+    + `toJSON()`
+    + `valueOf()`
+
 __Examples:__
 
-| object                         | type   | rsv | length | length bytes | encoding bytes |
-|--------------------------------|--------|-----|--------|--------------|----------------|
-| empty `{}`                     | `0111` | `0` | `000`  |              |                |
-| `{ a: 1, b: 2, c: 3 }`         | `0111` | `0` | `001`  | `00000011`   | `<String "a">` `<Integer 1>` `<String "b">` `<Integer 2>` `<String "c">` `<Integer 3>` |
-| `{ 42: 'foo' }`                | `0111` | `0` | `001`  | `00000001`   | `<String "42" or Integer 42>` `<String "foo">` |
-| `{ [Symbol.for('foo')]: 42 }`  | `0111` | `0` | `001`  | `00000001`   | `<Symbol.for('foo')>` `<Integer 42>` |
+| object                         | type   | class | length | length bytes | encoding bytes |
+|--------------------------------|--------|-------|--------|--------------|----------------|
+| empty `{}`                     | `0111` | `0`   | `000`  |              |                |
+| `{ a: 1, b: 2, c: 3 }`         | `0111` | `0`   | `001`  | `00000011`   | `<String "a">` `<Integer 1>` `<String "b">` `<Integer 2>` `<String "c">` `<Integer 3>` |
+| `{ 42: 'foo' }`                | `0111` | `0`   | `001`  | `00000001`   | `<String "42" or Integer 42>` `<String "foo">` |
+| `{ [Symbol.for('foo')]: 42 }`  | `0111` | `0`   | `001`  | `00000001`   | `<Symbol.for('foo')>` `<Integer 42>` |
+| `{ [Symbol.for('foo')]: 42 }`  | `0111` | `0`   | `001`  | `00000001`   | `<Symbol.for('foo')>` `<Integer 42>` |
+| `new User('Alex', 'alex@t.t')` | `0111` | `1`   | `001`  | `00000001`   | `<String "User">` `<String "name"> <String "Alex">` `<String "email"> <String "alex@t.t">` |
 
 
 ## 8. Sets `[1000]`

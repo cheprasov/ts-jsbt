@@ -12,7 +12,8 @@ export class JSBT {
         options.refs = {
             enabled: true,
         };
-        return encode(value, options);
+        const result = encode(value, options);
+        return result;
     }
 
     static decode<T = any>(value: string | string[] | number[]): T {
@@ -20,13 +21,15 @@ export class JSBT {
         stream.completeStream();
         const options = createDecodeOptions();
         options.context.readBytes = stream.getReadBytes();
-        return decode(null, stream, options) as T;
+        const result = decode(null, stream, options) as T;
+        return result;
     }
 
     static async decodeStream<T = any>(stream: ByteStream): Promise<T> {
         const options = createDecodeOptions();
         options.context.readBytes = stream.getReadBytes();
-        return decodeStream(null, stream, options) as Promise<T>;
+        const result = decodeStream(null, stream, options) as Promise<T>;
+        return result;
     }
 
 }

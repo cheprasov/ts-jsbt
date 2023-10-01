@@ -1,4 +1,5 @@
 import { IEncodeOptions, IRefData } from '../types/IEncodeOptions';
+import { isClassInstance } from '../utils/vars/isClassInstance';
 import { isFloat } from '../utils/vars/isFloat';
 import { isInteger } from '../utils/vars/isInteger';
 import { isMap } from '../utils/vars/isMap';
@@ -9,6 +10,7 @@ import { isTypedArray } from '../utils/vars/isTypedArray';
 import { encodeArray } from './encodeArray';
 import { encodeBigInt } from './encodeBigInt';
 import { encodeBoolean } from './encodeBoolean';
+import { encodeClassInstance } from './encodeClassInstance';
 import { encodeDate } from './encodeDate';
 import { encodeFloat } from './encodeFloat';
 import { encodeInfinity } from './encodeInfinity';
@@ -136,6 +138,11 @@ export const encode = (value: any, options: IEncodeOptions): string => {
             if (isPrimitiveObjectWrapper(val)) {
                 isRefAllowed = true;
                 result = encodePrimitiveObjectWrapper(val, options);
+                break;
+            }
+            if (isClassInstance(val)) {
+                isRefAllowed = true;
+                result = encodeClassInstance(val, options);
                 break;
             }
             break;

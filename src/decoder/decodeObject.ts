@@ -21,12 +21,27 @@ export const decodeObject = (
 
     const count = bytesToInteger(stream.readBytes(bytesCount));
 
+    const isClassInstance = Boolean(typeByte & 0b0000_1000);
+    const constructorName = isClassInstance ? decode(null, stream, options) : null;
+
     const obj: Record<string | symbol | number, any> = initObj;
 
     for (let i = 0; i < count; i += 1) {
-        const key = decode(stream.readByte(), stream, options);
-        const value = decode(stream.readByte(), stream, options);
+        const key = decode(null, stream, options);
+        const value = decode(null, stream, options);
         obj[key] = value;
+    }
+
+    if (isClassInstance) {
+        const constructorNameKey = options.objects.classInstanceConstructorNameKey;
+        if (constructorNameKey !== null) {
+            Object.defineProperty(obj, constructorNameKey, {
+                value: constructorName,
+                configurable: true,
+                enumerable: false,
+                writable: false,
+            })
+        }
     }
 
     return obj;

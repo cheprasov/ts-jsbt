@@ -6,4 +6,8 @@ export declare class User {
         name: string;
         email: string;
     };
+    toJSON(): {
+        n: string;
+        e: string;
+    };
 }
