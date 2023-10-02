@@ -1,6 +1,5 @@
 import { ETypeByteCode } from '../enums/ETypeByteCode';
 import { MAX_7_BYTES_INTEGER } from '../constants';
-import { getBytesSizeForString } from '../converter/getBytesSizeForString';
 import { integerToBytes } from '../converter/integerToBytes';
 import { toChar } from '../utils/toChar';
 
@@ -15,17 +14,19 @@ export const encodeString = (value: string): string => {
     }
     const msg: string[] = [];
 
-    const bytesCount = getBytesSizeForString(value);
-    if (bytesCount > MAX_7_BYTES_INTEGER) {
-        throw new Error(`Too large string. ${bytesCount} bytes, limit ${MAX_7_BYTES_INTEGER}`);
+    const encoder = new TextEncoder();
+    const encodeBytes = encoder.encode(value);
+
+    if (encodeBytes.byteLength > MAX_7_BYTES_INTEGER) {
+        throw new Error(`Too large string. ${encodeBytes.byteLength} bytes, limit ${MAX_7_BYTES_INTEGER}`);
     }
-    const bytes = integerToBytes(bytesCount)
+    const bytes = integerToBytes(encodeBytes.byteLength)
     // type byte
     msg.push(toChar(ETypeByteCode.String | (0b0000_0111 & bytes.length)));
     // length bytes
     msg.push(toChar(...bytes));
     // encode bytes
-    msg.push(value);
+    msg.push(toChar(...encodeBytes));
 
     return msg.join('');
 }

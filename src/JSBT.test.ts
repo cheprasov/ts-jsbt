@@ -56,6 +56,7 @@ describe('JSBT', () => {
             expect(JSBT.decode(JSBT.encode('🇬🇧'))).toBe('🇬🇧');
             expect(JSBT.decode(JSBT.encode(''))).toBe('');
             expect(JSBT.decode(JSBT.encode(true))).toBe(true);
+            expect(JSBT.decode(JSBT.encode('Саша'))).toBe('Саша');
         });
 
         it('should decode JSBT message with refs correct', () => {

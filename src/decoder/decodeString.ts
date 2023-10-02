@@ -1,5 +1,4 @@
 import { bytesToInteger } from '../converter/bytesToInteger';
-import { bytesToUtf16 } from '../converter/bytesToUtf16';
 import { ETypeByteCode } from '../enums/ETypeByteCode';
 import ByteStream from '../reader/ByteStream';
 
@@ -14,8 +13,9 @@ export const decodeString = (typeByte: number, stream: ByteStream): string => {
     }
 
     const bytesCount = stream.readBytes(count)
-    const strLen = bytesToInteger(bytesCount);
+    const bytesLength = bytesToInteger(bytesCount);
 
-    const bytes = stream.readBytes(strLen);
-    return bytesToUtf16(bytes);
+    const decoder = new TextDecoder('utf-8');
+    const bytes = stream.readBytes(bytesLength);
+    return decoder.decode(bytes);
 };

@@ -1,5 +1,4 @@
 import { bytesToInteger } from '../converter/bytesToInteger';
-import { bytesToUtf16 } from '../converter/bytesToUtf16';
 import { ETypeByteCode } from '../enums/ETypeByteCode';
 import ByteStream from '../reader/ByteStream';
 
@@ -13,9 +12,10 @@ export const decodeStringStream = async (typeByte: number, stream: ByteStream): 
         return '';
     }
 
-    const bytesCount = await stream.readStreamBytes(count);
-    const strLen = bytesToInteger(bytesCount);
+    const bytesCount = await stream.readStreamBytes(count)
+    const bytesLength = bytesToInteger(bytesCount);
 
-    const bytes = await stream.readStreamBytes(strLen);
-    return bytesToUtf16(bytes);
+    const decoder = new TextDecoder('utf-8');
+    const bytes = await stream.readStreamBytes(bytesLength);
+    return decoder.decode(bytes);
 };
