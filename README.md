@@ -96,9 +96,9 @@ console.log(encodedUsers.length); // 112
 const decodedUsers = JSBT.decode(encodedUsers);
 
 console.log(decodedUsers)
-console.log(decodedUsers.Alex.children === decodedUsers.Irina.children);
-console.log(decodedUsers.Matvey.parents[0] === decodedUsers.Alex);
-console.log(decodedUsers.Matvey.parents[1] === decodedUsers.Irina);
+console.log(decodedUsers.Alex.children === decodedUsers.Irina.children); // true
+console.log(decodedUsers.Matvey.parents[0] === decodedUsers.Alex); // true
+console.log(decodedUsers.Matvey.parents[1] === decodedUsers.Irina); // true
 ```
 
 #### 2.3 Encoding and decoding instances of a Class
