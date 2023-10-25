@@ -12,20 +12,41 @@ export type TTypedArrayConstructor = {
     new (init: number): TTypedArray;
 };
 
-export const typedArrayConstructorByType: Record<number, TTypedArrayConstructor> = {
-    [ETypedArrayByteCode.ArrayBuffer]: Uint8Array,
-    [ETypedArrayByteCode.Int8Array]: Int8Array,
-    [ETypedArrayByteCode.Uint8Array]: Uint8Array,
-    [ETypedArrayByteCode.Uint8ClampedArray]: Uint8ClampedArray,
-    [ETypedArrayByteCode.Int16Array]: Int16Array,
-    [ETypedArrayByteCode.Uint16Array]: Uint16Array,
-    [ETypedArrayByteCode.Int32Array]: Int32Array,
-    [ETypedArrayByteCode.Uint32Array]: Uint32Array,
-    [ETypedArrayByteCode.Float32Array]: Float32Array,
-    [ETypedArrayByteCode.Float64Array]: Float64Array,
-    [ETypedArrayByteCode.BigInt64Array]: BigInt64Array,
-    [ETypedArrayByteCode.BigUint64Array]: BigInt64Array,
-};
+export const typedArrayConstructorByType: Record<number, TTypedArrayConstructor> = {};
+if (typeof(Uint8Array) !== 'undefined') {
+    typedArrayConstructorByType[ETypedArrayByteCode.ArrayBuffer] = Uint8Array;
+    typedArrayConstructorByType[ETypedArrayByteCode.Uint8Array] = Uint8Array;
+}
+if (typeof(Int8Array) !== 'undefined') {
+    typedArrayConstructorByType[ETypedArrayByteCode.Int8Array] = Int8Array;
+}
+if (typeof(Uint8ClampedArray) !== 'undefined') {
+    typedArrayConstructorByType[ETypedArrayByteCode.Uint8ClampedArray] = Uint8ClampedArray;
+}
+if (typeof(Int16Array) !== 'undefined') {
+    typedArrayConstructorByType[ETypedArrayByteCode.Int16Array] = Int16Array;
+}
+if (typeof(Uint16Array) !== 'undefined') {
+    typedArrayConstructorByType[ETypedArrayByteCode.Uint16Array] = Uint16Array;
+}
+if (typeof(Int32Array) !== 'undefined') {
+    typedArrayConstructorByType[ETypedArrayByteCode.Int32Array] = Int32Array;
+}
+if (typeof(Uint32Array) !== 'undefined') {
+    typedArrayConstructorByType[ETypedArrayByteCode.Uint32Array] = Uint32Array;
+}
+if (typeof(Float32Array) !== 'undefined') {
+    typedArrayConstructorByType[ETypedArrayByteCode.Float32Array] = Float32Array;
+}
+if (typeof(Float64Array) !== 'undefined') {
+    typedArrayConstructorByType[ETypedArrayByteCode.Float64Array] = Float64Array;
+}
+if (typeof(BigInt64Array) !== 'undefined') {
+    typedArrayConstructorByType[ETypedArrayByteCode.BigInt64Array] = BigInt64Array;
+}
+if (typeof(BigUint64Array) !== 'undefined') {
+    typedArrayConstructorByType[ETypedArrayByteCode.BigUint64Array] = BigUint64Array;
+}
 
 export const dataViewGetter: Record<number, TDataViewGetter> = {
     [ETypedArrayByteCode.ArrayBuffer]: 'getUint8',

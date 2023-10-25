@@ -1,6 +1,6 @@
 {
   "name": "@cheprasov/jsbt",
-  "version": "1.2.1",
+  "version": "1.2.3",
   "author": "Alexander Cheprasov",
   "description": "JSBT is a library for serializing structured JavaScript data. The library is JavaScript oriented and tries to resolve JS needs for better data serialization.",
   "keywords": ["JSBT", "serialization"],
