@@ -1,6 +1,6 @@
 [![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
 
-@cheprasov/jsbt (v1.2.3)
+@cheprasov/jsbt (v1.3.0)
 =========
 
 JSBT is a library for serializing structured JavaScript data. The library is JavaScript oriented and tries to resolve JS needs for better data serialization. 
@@ -8,7 +8,8 @@ JSBT is a library for serializing structured JavaScript data. The library is Jav
 ### Features:
 - Super easy to use (serialization works straight away without using any predefined schemas or structure descriptions).
 - Supports main JS types: booleans, numbers (as integers or float), bigints, arrays, typed arrays, objects, sets, maps, symbols, dates.
-- Allows encode and decode Object Wrappers for primitive values.
+- Allows to encode and decode class instances.
+- Allows to encode and decode Object Wrappers for primitive values.
 - Created for communication between services written at JavaScript / TypeScript. (Node <-> Browser, Node <-> Node, Browser <-> Browser and so on).
 - Optimized for performance and compact size.
 - Size optimisation for repeated key or values.
@@ -101,7 +102,7 @@ console.log(decodedUsers.Matvey.parents[0] === decodedUsers.Alex); // true
 console.log(decodedUsers.Matvey.parents[1] === decodedUsers.Irina); // true
 ```
 
-#### 2.3 Encoding and decoding instances of a Class
+#### 2.3 Encoding instances of Class and decoding as object
 
 For getting props for Encoding Class Instances it will be used first found of the following methods:
 - `toJSBT()`
@@ -146,6 +147,108 @@ console.log(decodedUser);
 
 console.log('Construnctor Name: ', decodedUser.__jsbtConstructorName);
 // Construnctor Name: User
+```
+
+#### 2.4 Encoding and decoding instances of Class
+
+For getting props for Encoding Class Instances it will be used first found of the following methods:
+- `toJSBT()`
+- `toJSON()`
+- `valueOf()`
+
+Instance will be encoded like a object simple with props.
+Also the decoded object would have configurable, not enumerable and not writable prop `__jsbtConstructorName` with construcor name of encoded instance. 
+
+```javascript
+import { JSBT } from '@cheprasov/jsbt';
+
+
+export class User {
+
+    protected _name: string;
+    protected _email: string;
+
+    constructor(name: string, email: string) {
+        this._name = name;
+        this._email = email;
+    }
+}
+
+export class CustomUser {
+
+    protected name: string;
+    protected email: string;
+
+    constructor(name: string, email: string) {
+        this.name = name;
+        this.email = email;
+    }
+
+    toJSBT() {
+        // CustomUser will encoded like instance of User class
+        return Object.defineProperty(
+            {
+                _name: this.name,
+                _email: this.name,
+            },
+            '__jsbtConstructorName',
+            {
+                value: 'User',
+                configurable: true,
+                enumerable: false,
+                writable: false,
+            }
+        );
+    }
+
+}
+
+export class TransformerUser {
+
+    protected name: string;
+    protected email: string;
+
+    constructor(name: string, email: string) {
+        this.name = name;
+        this.email = email;
+    }
+
+    toJSBT() {
+        return (
+            {
+                _name: this.name,
+                _email: this.name,
+            },
+        );
+    }
+
+}
+
+
+const user = new User('Alex', 'alex@test.com');
+const customUser = new User('Custom Alex', 'custom_alex@test.com');
+const transformerUser = new TransformerUser('T Alex', 't_alex@test.com');
+
+// Encode
+const encodedUser = JSBT.encode(user);
+const encodedCustomUser = JSBT.encode(customUser);
+const encodedTransformerUser = JSBT.encode(transformerUser);
+
+// Class Factories
+
+JSBT.setClassFactories({
+    User: User, // encoded instances of User class will be decoded like instances of User class
+    'TransformerUser': User, // encoded instances of TransformerUser will be decoded like instances of User class
+});
+
+// Decode
+const decodedUser = JSBT.decode(user);
+const decodedCustomUser = JSBT.decode(customUser);
+const decodedTransformerUser = JSBT.decode(transformerUser);
+
+console.log(decodedUser instanceof User); // true
+console.log(decodedCustomUser instanceof User); // true
+console.log(decodedTransformerUser instanceof User); // true
 ```
 
 ### 3. How to use
@@ -206,6 +309,58 @@ loader.onCompleteLoading((data: string) => {
 
 // Decode data via stream
 const data = JSBT.decodeStream(stream); // returns Promise and it will be resolved on receiving enough bytes for decoding data structure
+
+```
+
+#### 3.4 Decoding instances of Class
+
+```javascript
+import { JSBT } from '@cheprasov/jsbt';
+
+
+export class User {
+
+    protected _name: string;
+    protected _email: string;
+
+    constructor(name: string, email: string) {
+        this._name = name;
+        this._email = email;
+    }
+}
+
+export class CustomUser {
+
+    protected name: string;
+    protected email: string;
+
+    constructor(name: string, email: string) {
+        this.name = name;
+        this.email = email;
+    }
+
+}
+
+const user = new User('Alex', 'alex@test.com');
+const customUser = new User('Custom Alex', 'custom_alex@test.com');
+
+// Encode
+const encodedUser = JSBT.encode(user);
+const encodedCustomUser = JSBT.encode(customUser);
+
+// Class Factories
+
+JSBT.setClassFactories({
+    User: User, // encoded instances of User class will be decoded like instances of User class
+    CustomUser: CustomUser, // encoded instances of CustomUser class will be decoded like instances of CustomUser class
+});
+
+// Decode
+const decodedUser = JSBT.decode(user);
+const decodedCustomUser = JSBT.decode(customUser);
+
+console.log(decodedUser instanceof User); // true
+console.log(decodedCustomUser instanceof CustomUser); // true
 
 ```
 

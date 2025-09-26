@@ -35,12 +35,17 @@ export const decodeObjectStream = async (
     if (isClassInstance) {
         const constructorNameKey = options.objects.classInstanceConstructorNameKey;
         if (constructorNameKey !== null) {
-            Object.defineProperty(obj, constructorNameKey, {
-                value: constructorName,
-                configurable: true,
-                enumerable: false,
-                writable: false,
-            })
+            const classConstructor = options.objects.factories[constructorName];
+            if (classConstructor) {
+                Object.setPrototypeOf(obj, classConstructor.prototype);
+            } else {
+                Object.defineProperty(obj, constructorNameKey, {
+                    value: constructorName,
+                    configurable: true,
+                    enumerable: false,
+                    writable: false,
+                });
+            }
         }
     }
 

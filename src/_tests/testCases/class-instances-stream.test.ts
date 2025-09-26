@@ -2,7 +2,6 @@ import { JSBT } from '../../JSBT';
 import ByteStream from '../../reader/ByteStream';
 import { User } from '../classes/User';
 import { delaySender } from '../utils/delaySender';
-import { expectAsBinaryString } from '../utils/expectAsBinaryString';
 
 const user1 = new User('Alex', 'alex@test.com');
 const user2 = new User('Test', 'test@test.com');

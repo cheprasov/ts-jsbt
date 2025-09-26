@@ -9,6 +9,7 @@ import { createDecodeOptions } from './options/createDecodeOptions';
 const options = createEncodeOptions();
 
 class User {
+
     protected _name: string;
     protected _email: string;
 
@@ -23,6 +24,19 @@ class User {
             email: this._email,
         };
     }
+
+}
+
+class User2 {
+
+    protected _name: string;
+    protected _email: string;
+
+    constructor(name: string, email: string) {
+        this._name = name;
+        this._email = email;
+    }
+
 }
 
 describe('decodeObjectStream', () => {
@@ -69,5 +83,22 @@ describe('decodeObjectStream', () => {
             name: 'Alex',
         });
         expect(user.__jsbtConstructorName).toEqual('User');
+    });
+
+    it('should convert object to class instance correct', async () => {
+        const decodeOptions = createDecodeOptions();
+        decodeOptions.objects.factories = {
+            'User2': User
+        };
+        const stream = new ByteStream([
+            encodeClassInstance(new User2('Alex', 'alex@test.com'), options),
+        ]);
+        stream.completeStream();
+        const user = await decodeObjectStream(stream.readByte(), stream, decodeOptions);
+        expect(user instanceof User).toBeTruthy();
+        expect(user).toEqual({
+            _email: 'alex@test.com',
+            _name: 'Alex',
+        });
     });
 });

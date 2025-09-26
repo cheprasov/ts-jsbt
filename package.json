@@ -1,9 +1,12 @@
 {
   "name": "@cheprasov/jsbt",
-  "version": "1.2.3",
+  "version": "1.3.0",
   "author": "Alexander Cheprasov",
   "description": "JSBT is a library for serializing structured JavaScript data. The library is JavaScript oriented and tries to resolve JS needs for better data serialization.",
-  "keywords": ["JSBT", "serialization"],
+  "keywords": [
+    "JSBT",
+    "serialization"
+  ],
   "main": "dist/index.js",
   "license": "MIT",
   "repository": {
@@ -28,7 +31,7 @@
     "@types/webpack": "^5.28.2",
     "@typescript-eslint/eslint-plugin": "^6.4.1",
     "@typescript-eslint/parser": "^6.4.1",
-    "babel-core": "^6.26.3",
+    "babel-core": "^4.7.16",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^29.6.4",
     "babel-loader": "^9.1.3",
