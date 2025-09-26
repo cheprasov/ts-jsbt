@@ -98,7 +98,7 @@ export const decodeTypedArray = (
             tarr[key] = view[dataGetterName](0, true);
         }
         if (typeByte === ETypedArrayByteCode.ArrayBuffer) {
-            return tarr.buffer;
+            return tarr.buffer as ArrayBuffer;
         }
         return tarr;
     } else {
@@ -108,7 +108,7 @@ export const decodeTypedArray = (
             tarr[i] = view[dataGetterName](i * bytesPerElement, true);
         }
         if (typeByte === ETypedArrayByteCode.ArrayBuffer) {
-            return tarr.buffer;
+            return tarr.buffer as ArrayBuffer;
         }
         return tarr;
     }

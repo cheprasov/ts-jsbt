@@ -6,8 +6,10 @@ export interface IDecodeContext {
     }[];
     readBytes: Readonly<number[]>;
 }
+export type TDecodeClassConstructor<T extends object> = new (...args: any[]) => T;
 export interface IDecodeObjectOptions {
     classInstanceConstructorNameKey: string | null;
+    factories: Record<string, TDecodeClassConstructor<any>>;
 }
 export interface IDecodeOptions {
     context: IDecodeContext;

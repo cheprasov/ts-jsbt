@@ -22,7 +22,9 @@ export const encodeClassInstance = (obj: TObject, options: IEncodeOptions): stri
     let count = 0;
 
     // constructor name
-    const constructorName = obj?.constructor?.name || '';
+    const constructorNameKey = options.objects.classInstanceConstructorNameKey;
+    const constructorName =
+        (constructorNameKey && (props[constructorNameKey] || obj[constructorNameKey])) || obj?.constructor?.name || '';
     msgBody.push(encode(constructorName, options));
 
     for (const key in props) {
@@ -48,11 +50,13 @@ export const encodeClassInstance = (obj: TObject, options: IEncodeOptions): stri
     const countBytes = integerToBytes(count);
 
     // type byte
-    msgHeaders.push(toChar(
-        ETypeByteCode.Object
-        | 0b0000_1000 // Class Instance
-        | (0b0000_0111 & countBytes.length)
-    ));
+    msgHeaders.push(
+        toChar(
+            ETypeByteCode.Object |
+                0b0000_1000 | // Class Instance
+                (0b0000_0111 & countBytes.length)
+        )
+    );
 
     // length
     msgHeaders.push(toChar(...countBytes));

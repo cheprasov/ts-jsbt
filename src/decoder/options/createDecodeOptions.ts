@@ -9,6 +9,7 @@ export const createDecodeOptions = (): IDecodeOptions => {
         },
         objects: {
             classInstanceConstructorNameKey: '__jsbtConstructorName',
+            factories: {}
         }
     }
 }

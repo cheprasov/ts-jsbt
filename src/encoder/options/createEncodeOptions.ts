@@ -11,6 +11,9 @@ export const createEncodeOptions = (): IEncodeOptions => {
         },
         primitives: {
             objectWrappersAsPrimitiveValue: false,
+        },
+        objects: {
+            classInstanceConstructorNameKey: '__jsbtConstructorName',
         }
     }
 }

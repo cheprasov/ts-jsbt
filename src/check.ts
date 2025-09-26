@@ -162,8 +162,71 @@ const data = {
 //const s = JSBT.encode(`Hello� \n\nWorl and � \n\nAlex`);
 debugger;
 const s = JSBT.encode(`�Alex`);
-
 // Decode
 const decodedData = JSBT.decode(s);
 
 console.log(decodedData);
+
+class User {
+    protected name = '';
+
+    constructor(name: string = '') {
+        this.name = name;
+    }
+
+    toJSBT() {
+        // return Object.defineProperty(
+        //     {
+        //         name: this.name,
+        //     },
+        //     '__jsbtConstructorName',
+        //     {
+        //         value: 'jsbt/User',
+        //         configurable: true,
+        //         enumerable: false,
+        //         writable: false,
+        //     }
+        // );
+
+        return {
+            name: this.name,
+            a: 'jsbt/User',
+            b: 'jsbt/User',
+            c: 'jsbt/User',
+            d: this.name
+            ,
+        };
+    }
+
+    getName() {
+        return this.name;
+    }
+}
+
+JSBT.setClassFactories({
+    User,
+    'jsbt/User': User,
+});
+
+const u = new User('Alex');
+// @ts-ignore
+console.log(u, u.__jsbtConstructorName);
+const eu = JSBT.encode(u);
+console.log(eu);
+
+
+console.log(JSBT.decode(eu));
+
+const u2 = { name: 'Alex 2', user: null };
+// @ts-ignore
+u2.user = u2;
+//Object.defineProperty(u2, 'prototype', User.prototype)
+// @ts-ignore
+//u2.prototype = User.prototype;
+
+//
+
+u2.__proto__ = User.prototype;
+Object.setPrototypeOf(u2, User.prototype),
+// @ts-ignore
+console.log(u2, u2.constructor.name, u2 instanceof User, u2.name, u.name);

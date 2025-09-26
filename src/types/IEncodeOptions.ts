@@ -17,8 +17,13 @@ export interface IEncodingContext {
     refCopy: Map<string, IRefData>;
 }
 
+export interface IEncodeObjectOptions {
+    classInstanceConstructorNameKey: string | null;
+}
+
 export interface IEncodeOptions {
     context: IEncodingContext,
     refs: IRefsOptions;
     primitives: IPrimitivesOptions;
+    objects: IEncodeObjectOptions,
 }
