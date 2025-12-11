@@ -124,7 +124,7 @@ JSBT defines a compact internal type system (see [specification](./specification
 
 ### Supported structures
 
-- **Predefined constants (0000)**  
+- **Predefined constants**  
   - `undefined`  
   - `null`  
   - `true` / `false`  
