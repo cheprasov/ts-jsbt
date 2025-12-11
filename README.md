@@ -33,7 +33,7 @@ JSBT is ideal for **Node ↔ Node**, **Node ↔ Browser**, **Browser ↔ Browser
    8.5 [Streams](#85-decoding-stream-data)
 9. [Specification](#specification)
 10. [FAQ: When to use JSBT?](#faq-when-to-use-jsbt)
-11. [ecurity considerations](#security-considerations)
+11. [Security considerations](#security-considerations)
 12. [Contributing](#contributing)
 13. [License](#license)
 
