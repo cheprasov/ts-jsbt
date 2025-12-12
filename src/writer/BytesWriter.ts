@@ -24,7 +24,7 @@ export class BytesWriter implements IDataWriter {
         this._offset += bytes.length;
     }
 
-    size(): number {
+    getOffset(): number {
         return this._offset;
     }
 

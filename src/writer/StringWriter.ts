@@ -12,7 +12,7 @@ export class StringWriter implements IDataWriter {
         this._chunks.push(String.fromCharCode(...bytes));
     }
 
-    size(): number {
+    getOffset(): number {
         return this._chunks.length;
     }
 

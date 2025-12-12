@@ -5,6 +5,6 @@ export interface IDataWriter {
 
     pushBytes(bytes: number[] | Uint8Array): void;
 
-    size(): number;
+    getOffset(): number;
 
 }
