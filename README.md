@@ -35,7 +35,8 @@ JSBT is ideal for **Node ↔ Node**, **Node ↔ Browser**, **Browser ↔ Browser
 10. [FAQ: When to use JSBT?](#faq-when-to-use-jsbt)
 11. [Security considerations](#security-considerations)
 12. [Contributing](#contributing)
-13. [License](#license)
+13. [Roadmap](#roadmap)
+14. [License](#license)
 
 ---
 
@@ -647,6 +648,22 @@ Something does not work as expected? Found a bug? Want to add a feature?
 - Open a Pull Request
 
 Contributions, issue reports, and benchmark results are all very welcome.
+
+---
+
+## Roadmap
+
+### v1.4.0 — Native bytes output (modern runtimes)
+Goal: enable **Uint8Array/Buffer output** for WebSocket binary frames, Node streams, and zero-copy worker transfers.
+
+- [ ] Add `JSBT.encodeToBytes(value): Uint8Array`
+- [ ] Extend decode input support: `JSBT.decode(input: string | Uint8Array | ArrayBuffer)`
+- [ ] Keep `JSBT.encode(value): string` fully backward compatible
+- [ ] No format/spec changes (wire format remains the same)
+
+Notes:
+- Old browsers without `Uint8Array` keep using the current string-based path.
+- Modern runtimes can opt into bytes output for better performance & interoperability.
 
 ---
 
