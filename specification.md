@@ -30,8 +30,8 @@ JavaScript Byte Translation
 `1010` - Symbols  
 `1011` - Refs  
 `1100` - Dates  
-`? 1101` - not in use
-`? 1110` - not in use
+`? 1101` - not in use  
+`? 1110` - not in use  
 `1111` - Instructions 
 
 
