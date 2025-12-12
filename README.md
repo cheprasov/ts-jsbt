@@ -293,9 +293,9 @@ Most generic formats either fail or require manual flattening.
 
 Performance (JSBT only, 5,000 iterations):
 
-- Size: **~369 bytes**
-- Encode: **≈ 22 µs/op**
-- Decode: **≈ 11 µs/op**
+- Size: **~57.5 KB**
+- Encode: ** ~3,481 µs/op**
+- Decode: ** ~1,586 µs/op**
 
 ---
 
