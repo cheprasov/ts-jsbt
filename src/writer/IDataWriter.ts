@@ -1,9 +1,11 @@
 
 export interface IDataWriter {
 
-    pushByte(byte: number): void;
+    pushByte(byte: number): number;
 
-    pushBytes(bytes: number[] | Uint8Array): void;
+    pushBytes(bytes: number[] | Uint8Array): number;
+
+    getSubBytes(offset: number, size: number): Readonly<Uint8Array>;
 
     getOffset(): number;
 

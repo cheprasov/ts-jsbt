@@ -1,8 +1,8 @@
 import { EConstantByteCode } from '../enums/EConstantByteCode';
-import { toChar } from '../utils/toChar';
+import { IDataWriter } from '../writer/IDataWriter';
 
-const UNDEFINED_BYTE = toChar(EConstantByteCode.Undefined)
+const UNDEFINED_BYTE = EConstantByteCode.Undefined
 
-export const encodeUndefined = (): string => {
-    return UNDEFINED_BYTE;
+export const encodeUndefined = (writer: IDataWriter): number => {
+    return writer.pushByte(UNDEFINED_BYTE);
 }

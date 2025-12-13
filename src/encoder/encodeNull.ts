@@ -1,8 +1,8 @@
 import { EConstantByteCode } from '../enums/EConstantByteCode';
-import { toChar } from '../utils/toChar';
+import { IDataWriter } from '../writer/IDataWriter';
 
-const NULL_BYTE = toChar(EConstantByteCode.Null)
+const NULL_BYTE = EConstantByteCode.Null;
 
-export const encodeNull = (): string => {
-    return NULL_BYTE;
+export const encodeNull = (writer: IDataWriter): number => {
+    return writer.pushByte(NULL_BYTE);
 }

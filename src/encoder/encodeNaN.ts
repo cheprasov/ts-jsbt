@@ -1,8 +1,8 @@
 import { EConstantByteCode } from '../enums/EConstantByteCode';
-import { toChar } from '../utils/toChar';
+import { IDataWriter } from '../writer/IDataWriter';
 
-const NAN_BYTE = toChar(EConstantByteCode.NaN)
+const NAN_BYTE = EConstantByteCode.NaN;
 
-export const encodeNaN = (): string => {
-    return NAN_BYTE;
+export const encodeNaN = (writer: IDataWriter): number => {
+    return writer.pushByte(NAN_BYTE);
 }

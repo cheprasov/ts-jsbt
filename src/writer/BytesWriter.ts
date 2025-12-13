@@ -12,16 +12,24 @@ export class BytesWriter implements IDataWriter {
         this._buffer = next;
     }
 
-    pushByte(byte: number) {
+    pushByte(byte: number): number {
         this.ensure(1);
         this._buffer[this._offset] = byte & 0xff;
         this._offset += 1;
+        return this._offset;
     }
 
-    pushBytes(bytes: number[] | Uint8Array) {
+    pushBytes(bytes: number[] | Uint8Array): number {
         this.ensure(bytes.length);
         this._buffer.set(bytes, this._offset);
         this._offset += bytes.length;
+        return this._offset;
+    }
+
+    getSubBytes(offset: number, size: number = 0): Readonly<Uint8Array> {
+        if (offset >= this._offset) return new Uint8Array(0);
+        const end = size > 0 ? Math.min(offset + size, this._offset) : this._offset;
+        return this._buffer.subarray(offset, end);
     }
 
     getOffset(): number {

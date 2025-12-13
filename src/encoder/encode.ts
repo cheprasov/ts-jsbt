@@ -27,19 +27,13 @@ import { encodeSymbol } from './encodeSymbol';
 import { encodeTypedArray } from './encodeTypedArray';
 import { encodeUndefined } from './encodeUndefined';
 
-export const encode = (value: any, options: IEncodeOptions): string => {
+export const encode = (value: any, options: IEncodeOptions): number => {
     const context = options.context;
     const isRefEnabled = options.refs?.enabled || false;
 
-    let val = value;
-
-    if (isPrimitiveObjectWrapper(value) && options.primitives.objectWrappersAsPrimitiveValue) {
-        val = value.valueOf(); // Primitive Object to Promitive Value
-    }
-
     let refData: IRefData | null = null;
     if (isRefEnabled) {
-        refData = context.refMap.get(val) || null;
+        refData = context.refMap.get(value) || null;
         if (refData) {
             if (!refData.encodedRefLink) {
                 refData.encodedRefLink = encodeRef('link', refData.refId, options);
@@ -52,132 +46,134 @@ export const encode = (value: any, options: IEncodeOptions): string => {
                 encodedRefLink: null,
                 encodedRefCopy: null,
             };
-            context.refMap.set(val, refData);
+            context.refMap.set(value, refData);
         }
     }
 
-    let result: string | null = null;
     let isRefAllowed: boolean = false;
 
-    const type = typeof val;
+    const offset = options.writer.getOffset();
+    let newOffset: number = 0;
+
+    const type = typeof value;
     switch (type) {
         case 'undefined': {
             isRefAllowed = false;
-            result = encodeUndefined();
+            newOffset = encodeUndefined(options.writer);
             break;
         }
         case 'boolean': {
             isRefAllowed = false;
-            result = encodeBoolean(val);
+            newOffset = encodeBoolean(value, options.writer);
             break;
         }
         case 'number': {
-            if (isInteger(val)) {
-                isRefAllowed = val > 255 || val < -255;
-                result = encodeInteger(val);
+            if (isInteger(value)) {
+                isRefAllowed = value > 255 || value < -255;
+                newOffset = encodeInteger(value, options.writer);
                 break;
             }
-            if (isFloat(val)) {
+            if (isFloat(value)) {
                 isRefAllowed = true;
-                result = encodeFloat(val);
+                newOffset = encodeFloat(value, options.writer);
                 break;
             }
-            if (Number.isNaN(val)) {
+            if (Number.isNaN(value)) {
                 isRefAllowed = false;
-                result = encodeNaN();
+                newOffset = encodeNaN(options.writer);
                 break;
             }
-            if (val === Infinity || val === -Infinity) {
+            if (value === Infinity || value === -Infinity) {
                 isRefAllowed = false;
-                result = encodeInfinity(val);
+                newOffset = encodeInfinity(value, options.writer);
                 break;
             }
             break;
         }
         case 'string': {
-            isRefAllowed = val.length > 2;
-            result = encodeString(val);
+            isRefAllowed = value.length > 2;
+            newOffset = encodeString(value, options.writer);
             break;
         }
         case 'object': {
-            if (val === null) {
+            if (value === null) {
                 isRefAllowed = false;
-                result = encodeNull();
+                newOffset = encodeNull(options.writer);
                 break;
             }
-            if (Array.isArray(val)) {
+            if (Array.isArray(value)) {
                 isRefAllowed = true;
-                result = encodeArray(val, options);
+                newOffset = encodeArray(value, options);
                 break;
             }
-            if (isObject(val)) {
+            if (isObject(value)) {
                 isRefAllowed = true;
-                result = encodeObject(val, options);
+                newOffset = encodeObject(value, options);
                 break;
             }
-            if (isSet(val)) {
+            if (isSet(value)) {
                 isRefAllowed = true;
-                result = encodeSet(val, options);
+                newOffset = encodeSet(value, options);
                 break;
             }
-            if (isMap(val)) {
+            if (isMap(value)) {
                 isRefAllowed = true;
-                result = encodeMap(val, options);
+                newOffset = encodeMap(value, options);
                 break;
             }
-            if (isTypedArray(val)) {
+            if (isTypedArray(value)) {
                 isRefAllowed = true;
-                result = encodeTypedArray(val, options);
+                newOffset = encodeTypedArray(value, options);
                 break;
             }
-            if (val instanceof Date) {
-                isRefAllowed = Math.abs(val.getTime()) > 255;
-                result = encodeDate(val, options);
+            if (value instanceof Date) {
+                isRefAllowed = Math.abs(value.getTime()) > 255;
+                newOffset = encodeDate(value, options);
                 break;
             }
-            if (isPrimitiveObjectWrapper(val)) {
+            if (isPrimitiveObjectWrapper(value)) {
                 isRefAllowed = true;
-                result = encodePrimitiveObjectWrapper(val, options);
+                newOffset = encodePrimitiveObjectWrapper(value, options);
                 break;
             }
-            if (isClassInstance(val)) {
+            if (isClassInstance(value)) {
                 isRefAllowed = true;
-                result = encodeClassInstance(val, options);
+                newOffset = encodeClassInstance(value, options);
                 break;
             }
             break;
         }
         case 'bigint': {
             isRefAllowed = true;
-            result = encodeBigInt(val);
+            newOffset = encodeBigInt(value, options.writer);
             break;
         }
         case 'symbol': {
             isRefAllowed = true;
-            result = encodeSymbol(val);
+            newOffset = encodeSymbol(value, options.writer);
             break;
         }
     }
 
-    if (result === null) {
-        throw new Error(`Unsupported encoding value: "${val}", type: "${type}"`);
+    if (newOffset === null) {
+        throw new Error(`Unsupported encoding value: "${value}", type: "${type}"`);
     }
 
     if (refData) {
         if (isRefAllowed) {
-            const refCopy = context.refCopy.get(result);
+            const refCopy = context.refCopy.get(newOffset);
             if (refCopy) {
                 if (!refData.encodedRefCopy) {
                     refData.encodedRefCopy = encodeRef('copy', refCopy.refId, options);
                 }
                 return refData.encodedRefCopy;
             } else {
-                context.refCopy.set(result, refData);
+                context.refCopy.set(newOffset, refData);
             }
         } else {
-            context.refMap.delete(val);
+            context.refMap.delete(value);
         }
     }
 
-    return result;
+    return newOffset;
 };

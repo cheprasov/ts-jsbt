@@ -18,7 +18,8 @@
     "build": "webpack --mode development",
     "build:watch": "webpack --watch --mode development",
     "eslint": "node ./node_modules/.bin/eslint ./app/src/",
-    "test": "jest"
+    "test": "jest",
+    "benchmark1": "npx ts-node ./benchmarks/benchmark1.ts"
   },
   "devDependencies": {
     "@babel/cli": "^7.22.10",

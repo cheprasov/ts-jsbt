@@ -1,3 +1,4 @@
+import { IDataWriter } from '../writer/IDataWriter';
 
 export interface IDecodeContext {
     refs: any[];
@@ -16,6 +17,7 @@ export interface IDecodeObjectOptions {
 }
 
 export interface IDecodeOptions {
-    context: IDecodeContext,
-    objects: IDecodeObjectOptions,
+    context: IDecodeContext;
+    objects: IDecodeObjectOptions;
+    writer: IDataWriter;
 }

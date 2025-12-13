@@ -3,22 +3,21 @@ import { MAX_7_BYTES_INTEGER } from '../constants';
 import { integerToBytes } from '../converter/integerToBytes';
 import { IEncodeOptions } from '../types/IEncodeOptions';
 import { getFilledItemsCount } from '../utils/arrays/getFilledItemsCount';
-import { toChar } from '../utils/toChar';
 import { encodeEmptyValue } from './encodeEmptyValue';
 import { encodeInteger } from './encodeInteger';
 import { encode } from './encode';
 
-const EMPTY_ARRAY_BYTE_CHAR = toChar(ETypeByteCode.Array & 0b1111_0000);
+const EMPTY_ARRAY_BYTE_CHAR = ETypeByteCode.Array & 0b1111_0000;
 
 const SPARSE_RATE = 0.5;
 
-export const encodeArray = (arr: any[], options: IEncodeOptions): string => {
+export const encodeArray = (arr: any[], options: IEncodeOptions): number => {
     if (!Array.isArray(arr)) {
         throw new Error(`Expecting "array" type, received "${arr}" (${typeof arr})`);
     }
-
+    const writer = options.writer;
     if (arr.length === 0) {
-        return EMPTY_ARRAY_BYTE_CHAR;
+        return writer.pushByte(EMPTY_ARRAY_BYTE_CHAR);
     }
 
     if (arr.length > MAX_7_BYTES_INTEGER) {
@@ -29,17 +28,14 @@ export const encodeArray = (arr: any[], options: IEncodeOptions): string => {
     const isSparseEncoding = filledCount / arr.length < SPARSE_RATE;
     const bytes = integerToBytes(arr.length);
 
-    const msg: string[] = [];
-
     // type byte
-    msg.push(toChar(
-        ETypeByteCode.Array
-        | ((0b0000_0111 & bytes.length)
-        | (isSparseEncoding ? 0b0000_1000 : 0))
-    ));
+    writer.pushByte(
+        ETypeByteCode.Array |
+        ((0b0000_0111 & bytes.length) | (isSparseEncoding ? 0b0000_1000 : 0))
+    );
 
     // length
-    msg.push(toChar(...bytes));
+    writer.pushBytes(bytes);
 
     if (isSparseEncoding) {
         // Sparse Array Encoding
@@ -47,20 +43,24 @@ export const encodeArray = (arr: any[], options: IEncodeOptions): string => {
 
         // Items count
         const countBytes = integerToBytes(filledCount, bytes.length);
-        msg.push(toChar(...countBytes));
+        writer.pushBytes(countBytes);
 
         arr.forEach((item, index) => {
-            msg.push(encodeInteger(index));
-            msg.push(encode(item, options));
+            encodeInteger(index, writer);
+            encode(item, options);
         });
     } else {
         // Dense Array Encoding
         // Encode all items including Empty Values
         for (let i = 0; i < arr.length; i += 1) {
             const isEmptyValue = !(String(i) in arr);
-            msg.push(isEmptyValue ? encodeEmptyValue() : encode(arr[i], options));
+            if (isEmptyValue) {
+                encodeEmptyValue(writer);
+            } else {
+                encode(arr[i], options);
+            }
         }
     }
 
-    return msg.join('');
+    return writer.getOffset();
 };

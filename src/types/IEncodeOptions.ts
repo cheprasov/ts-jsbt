@@ -1,6 +1,4 @@
-export interface IPrimitivesOptions {
-    objectWrappersAsPrimitiveValue: boolean;
-}
+import { IDataWriter } from '../writer/IDataWriter';
 
 export interface IRefsOptions {
     enabled: boolean;
@@ -22,8 +20,8 @@ export interface IEncodeObjectOptions {
 }
 
 export interface IEncodeOptions {
-    context: IEncodingContext,
+    context: IEncodingContext;
     refs: IRefsOptions;
-    primitives: IPrimitivesOptions;
-    objects: IEncodeObjectOptions,
+    objects: IEncodeObjectOptions;
+    writer: IDataWriter;
 }

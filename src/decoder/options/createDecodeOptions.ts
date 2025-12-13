@@ -1,4 +1,5 @@
 import { IDecodeOptions } from '../../types/IDecodeOptions';
+import { BytesWriter } from '../../writer/BytesWriter';
 
 export const createDecodeOptions = (): IDecodeOptions => {
     return {
@@ -9,7 +10,8 @@ export const createDecodeOptions = (): IDecodeOptions => {
         },
         objects: {
             classInstanceConstructorNameKey: '__jsbtConstructorName',
-            factories: {}
-        }
-    }
-}
+            factories: {},
+        },
+        writer: new BytesWriter(),
+    };
+};

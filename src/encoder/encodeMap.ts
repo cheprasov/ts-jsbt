@@ -1,20 +1,21 @@
 import { ETypeByteCode } from '../enums/ETypeByteCode';
 import { MAX_7_BYTES_INTEGER } from '../constants';
 import { IEncodeOptions } from '../types/IEncodeOptions';
-import { toChar } from '../utils/toChar';
 import { integerToBytes } from '../converter/integerToBytes';
 import { isMap } from '../utils/vars/isMap';
 import { encode } from './encode';
 
-const EMPTY_MAP_BYTE_CHAR = toChar(ETypeByteCode.Map & 0b1111_0000);
+const EMPTY_MAP_BYTE = ETypeByteCode.Map & 0b1111_0000;
 
-export const encodeMap = (map: Map<any, any>, options: IEncodeOptions): string => {
+export const encodeMap = (map: Map<any, any>, options: IEncodeOptions): number => {
     if (!isMap(map)) {
         throw new Error(`Expecting "map" type, received "${map}" (${typeof map})`);
     }
 
+    const writer = options.writer;
+
     if (map.size === 0) {
-        return EMPTY_MAP_BYTE_CHAR;
+        return writer.pushByte(EMPTY_MAP_BYTE);
     }
 
     if (map.size > MAX_7_BYTES_INTEGER) {
@@ -23,20 +24,19 @@ export const encodeMap = (map: Map<any, any>, options: IEncodeOptions): string =
 
     const sizeBytes = integerToBytes(map.size);
 
-    const msg: string[] = [];
     // type byte
-    msg.push(toChar(
+    writer.pushByte(
         ETypeByteCode.Map
         | (0b0000_0111 & sizeBytes.length)
-    ));
+    );
 
     // count
-    msg.push(toChar(...sizeBytes));
+    writer.pushBytes(sizeBytes);
 
     map.forEach((value, key) => {
-        msg.push(encode(key, options));
-        msg.push(encode(value, options));
+        encode(key, options);
+        encode(value, options);
     });
 
-    return msg.join('');
+    return writer.getOffset();
 };
