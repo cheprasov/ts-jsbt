@@ -526,7 +526,7 @@ Instructions are special definitions that describes how following structures sho
 type: `1111` <br>
 sub-type 4 bits:
 + 4 bits for instructions:
-    - `000` - Encode Primitive Types with Object Wrapper.
+    - `0000` - Encode Primitive Types with Object Wrapper.
 
 __Note:__
 
