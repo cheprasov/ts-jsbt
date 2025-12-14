@@ -1,16 +1,15 @@
 import { MAX_7_BYTES_INTEGER } from '../constants';
 import { integerToBytes } from '../converter/integerToBytes';
-import { IEncodeOptions } from '../types/IEncodeOptions';
 import { TTypedArray } from '../types/TTypedArray';
-import { toChar } from '../utils/toChar';
 import { isTypedArray } from '../utils/vars/isTypedArray';
 import { encodeInteger } from './encodeInteger';
 import { getBytesPerElement } from '../utils/typedArrays/getTypedArrayByteCount';
 import { ETypedArrayByteCode } from '../enums/ETypedArrayByteCode';
 import { getFilledItemsCount } from '../utils/typedArrays/getFilledItemsCount';
 import { calculateByteCountVariants } from '../utils/typedArrays/calculateByteCountVariants';
+import { IDataWriter } from '../writer/IDataWriter';
 
-const TYPED_ARRAY_CHAR_BY_NAME = {
+const TYPED_ARRAY_BYTE_BY_NAME = {
     ArrayBuffer: ETypedArrayByteCode.ArrayBuffer,
     Int8Array: ETypedArrayByteCode.Int8Array,
     Uint8Array: ETypedArrayByteCode.Uint8Array,
@@ -25,16 +24,17 @@ const TYPED_ARRAY_CHAR_BY_NAME = {
     BigUint64Array: ETypedArrayByteCode.BigUint64Array,
 } as const;
 
-export const encodeTypedArray = (tarr: TTypedArray | ArrayBuffer, options?: IEncodeOptions): string => {
+export const encodeTypedArray = (tarr: TTypedArray | ArrayBuffer, writer: IDataWriter): number => {
     if (!isTypedArray(tarr)) {
         throw new Error(`Expecting "typedArray" type, received "${tarr}" (${typeof tarr})`);
     }
 
-    const name = tarr.constructor.name as keyof typeof TYPED_ARRAY_CHAR_BY_NAME;
-    const typeCode = TYPED_ARRAY_CHAR_BY_NAME[name];
+    const name = tarr.constructor.name as keyof typeof TYPED_ARRAY_BYTE_BY_NAME;
+    const typeCode = TYPED_ARRAY_BYTE_BY_NAME[name];
 
     if (tarr.byteLength === 0) {
-        return toChar(typeCode, 0b0000_0000);
+        writer.pushByte(typeCode);
+        return writer.pushByte(0b0000_0000);
     }
 
     const arr = tarr instanceof ArrayBuffer ? new Uint8Array(tarr) : tarr;
@@ -48,45 +48,42 @@ export const encodeTypedArray = (tarr: TTypedArray | ArrayBuffer, options?: IEnc
             `Provided typed array has too large length, limit ${MAX_7_BYTES_INTEGER}, received ${tarr.byteLength}`
         );
     }
-    const msg: string[] = [];
 
     const calculation = calculateByteCountVariants(tarr);
     const isValueEncoding = calculation.envValueSize <= calculation.encKeyValueSize;
 
     // type byte
-    msg.push(toChar(typeCode));
+    writer.pushByte(typeCode);
 
     // rsv / endoding / length / items count
     const byteLenBytes = integerToBytes(tarr.byteLength);
     const lenBytes = integerToBytes(arr.length);
     const defCountBytes = integerToBytes(definedItemsCount);
-    msg.push(
-        toChar(
-            0b0000_0000 |
-                (isValueEncoding ? 0 : 0b0_1_000000) |
-                (isValueEncoding ? 0 : (0b00000_111 & byteLenBytes.length) << 3) |
-                (isValueEncoding ? (0b00000_111 & lenBytes.length) : (0b00000_111 & defCountBytes.length))
-        )
+    writer.pushByte(
+        0b0000_0000 |
+            (isValueEncoding ? 0 : 0b0_1_000000) |
+            (isValueEncoding ? 0 : (0b00000_111 & byteLenBytes.length) << 3) |
+            (isValueEncoding ? (0b00000_111 & lenBytes.length) : (0b00000_111 & defCountBytes.length))
     );
 
     if (isValueEncoding) {
         // items count
-        msg.push(toChar(...lenBytes));
+        writer.pushBytes(lenBytes);
         const uint8arr = new Uint8Array(tarr instanceof ArrayBuffer ? tarr : tarr.buffer);
-        msg.push(toChar(...uint8arr));
+        writer.pushBytes(uint8arr);
     } else {
         // length
-        msg.push(toChar(...byteLenBytes));
-        msg.push(toChar(...defCountBytes));
+        writer.pushBytes(byteLenBytes);
+        writer.pushBytes(defCountBytes);
         for (let i = 0; i < arr.length; i += 1) {
             const num = arr[i];
             if (num) {
                 const uint8arr = new Uint8Array(arr.buffer, i * bytesPerElement, bytesPerElement);
-                msg.push(encodeInteger(i));
-                msg.push(toChar(...uint8arr));
+                encodeInteger(i, writer)
+                writer.pushBytes(uint8arr);
             }
         }
     }
 
-    return msg.join('');
+    return writer.getOffset();
 };

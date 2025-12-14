@@ -28,6 +28,8 @@ import { encodeTypedArray } from './encodeTypedArray';
 import { encodeUndefined } from './encodeUndefined';
 
 export const encode = (value: any, options: IEncodeOptions): number => {
+    const offset = options.writer.getOffset();
+    let newOffset: number = 0;
     const context = options.context;
     const isRefEnabled = options.refs?.enabled || false;
 
@@ -36,9 +38,11 @@ export const encode = (value: any, options: IEncodeOptions): number => {
         refData = context.refMap.get(value) || null;
         if (refData) {
             if (!refData.encodedRefLink) {
-                refData.encodedRefLink = encodeRef('link', refData.refId, options);
+                newOffset = encodeRef('link', refData.refId, options.writer);
+                refData.encodedRefLink = options.writer.getSubBytes(offset);
+                return options.writer.getOffset();
             }
-            return refData.encodedRefLink;
+            return options.writer.pushBytes(refData.encodedRefLink);
         } else {
             const refId = context.refMap.size;
             refData = {
@@ -51,9 +55,6 @@ export const encode = (value: any, options: IEncodeOptions): number => {
     }
 
     let isRefAllowed: boolean = false;
-
-    const offset = options.writer.getOffset();
-    let newOffset: number = 0;
 
     const type = typeof value;
     switch (type) {
@@ -123,12 +124,12 @@ export const encode = (value: any, options: IEncodeOptions): number => {
             }
             if (isTypedArray(value)) {
                 isRefAllowed = true;
-                newOffset = encodeTypedArray(value, options);
+                newOffset = encodeTypedArray(value, options.writer);
                 break;
             }
             if (value instanceof Date) {
-                isRefAllowed = Math.abs(value.getTime()) > 255;
-                newOffset = encodeDate(value, options);
+                isRefAllowed = Math.abs(value.getTime()) > 255; // BUG ?!
+                newOffset = encodeDate(value, options.writer);
                 break;
             }
             if (isPrimitiveObjectWrapper(value)) {
@@ -155,20 +156,24 @@ export const encode = (value: any, options: IEncodeOptions): number => {
         }
     }
 
-    if (newOffset === null) {
+    if (newOffset === offset) {
         throw new Error(`Unsupported encoding value: "${value}", type: "${type}"`);
     }
 
     if (refData) {
         if (isRefAllowed) {
-            const refCopy = context.refCopy.get(newOffset);
+            const uint8a = options.writer.getSubBytes(offset);
+            const refCopy = context.refCopy.get(uint8a);
             if (refCopy) {
                 if (!refData.encodedRefCopy) {
-                    refData.encodedRefCopy = encodeRef('copy', refCopy.refId, options);
+                    options.writer.setOffset(offset);
+                    encodeRef('copy', refCopy.refId, options.writer);
+                    refData.encodedRefCopy = options.writer.getSubBytes(newOffset);
+                    return options.writer.getOffset();
                 }
-                return refData.encodedRefCopy;
+                return options.writer.pushBytes(refData.encodedRefCopy);
             } else {
-                context.refCopy.set(newOffset, refData);
+                context.refCopy.set(uint8a, refData);
             }
         } else {
             context.refMap.delete(value);

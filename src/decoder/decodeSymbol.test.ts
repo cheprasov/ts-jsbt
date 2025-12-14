@@ -1,17 +1,18 @@
 import { encodeSymbol } from '../encoder/encodeSymbol';
 import ByteStream from '../reader/ByteStream';
+import { BytesWriter } from '../writer/BytesWriter';
 import { decodeSymbol } from './decodeSymbol';
 
 describe('decodeSymbol', () => {
-
     it('should decode string correct', () => {
-        const stream = new ByteStream([
-            encodeSymbol(Symbol.for('Alex 42')),
-            encodeSymbol(Symbol.for('')),
-            encodeSymbol(Symbol.for('🇬🇧')),
-            encodeSymbol(Symbol.for('I💖JS')),
-            encodeSymbol(Symbol.for('I💖JS'.repeat(35))),
-        ]);
+        const writer = new BytesWriter();
+        encodeSymbol(Symbol.for('Alex 42'), writer);
+        encodeSymbol(Symbol.for(''), writer);
+        encodeSymbol(Symbol.for('🇬🇧'), writer);
+        encodeSymbol(Symbol.for('I💖JS'), writer);
+        encodeSymbol(Symbol.for('I💖JS'.repeat(35)), writer);
+
+        const stream = new ByteStream(writer.toString());
         stream.completeStream();
 
         expect(decodeSymbol(stream.readByte(), stream)).toBe(Symbol.for('Alex 42'));
@@ -20,5 +21,4 @@ describe('decodeSymbol', () => {
         expect(decodeSymbol(stream.readByte(), stream)).toBe(Symbol.for('I💖JS'));
         expect(decodeSymbol(stream.readByte(), stream)).toBe(Symbol.for('I💖JS'.repeat(35)));
     });
-
 });

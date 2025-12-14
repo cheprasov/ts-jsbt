@@ -5,7 +5,6 @@ import { TObject } from '../types/TObject';
 import { isObject } from '../utils/vars/isObject';
 import { integerToBytes } from '../converter/integerToBytes';
 import { encode } from './encode';
-import { BytesWriter } from '../writer/BytesWriter';
 
 const EMPTY_OBJECT_BYTE = ETypeByteCode.Object & 0b1111_0000;
 
@@ -15,28 +14,15 @@ export const encodeObject = (obj: TObject, options: IEncodeOptions): number => {
     }
 
     const writer = options.writer;
-    const bodyWriter = new BytesWriter();
 
-    let count = 0;
+    const keys = Object.keys(obj); // только own enumerable string keys
+    const syms = Object.getOwnPropertySymbols(obj); // собственные symbols (все, enumerable/не enumerable)
 
-    options.writer = bodyWriter;
+    // Если тебе нужны только enumerable symbols, добавь фильтр:
+    // const syms = Object.getOwnPropertySymbols(obj).filter(s => Object.prototype.propertyIsEnumerable.call(obj, s));
 
-    for (const key in obj) {
-        if (!obj.hasOwnProperty(key)) {
-            continue;
-        }
-        encode(key, options);
-        encode(obj[key], options);
-        count += 1;
-    }
+    const count = keys.length + syms.length;
 
-    for (const sym of Object.getOwnPropertySymbols(obj)) {
-        encode(sym, options);
-        encode(obj[sym], options);
-        count += 1;
-    }
-
-    options.writer = writer;
 
     if (count === 0) {
         return writer.pushByte(EMPTY_OBJECT_BYTE);
@@ -56,5 +42,43 @@ export const encodeObject = (obj: TObject, options: IEncodeOptions): number => {
 
     // length
     writer.pushBytes(countBytes);
-    return writer.pushBytes(bodyWriter.getSubBytes(0));
+
+    // for (const key in obj) {
+    //     if (!obj.hasOwnProperty(key)) {
+    //         continue;
+    //     }
+    //     encode(key, options);
+    //     encode(obj[key], options);
+    //     //count += 1;
+    // }
+
+    for (let i = 0; i < keys.length; i += 1) {
+        const key = keys[i];
+        encode(key, options);
+        encode((obj as any)[key], options);
+    }
+
+    // for (const sym of Object.getOwnPropertySymbols(obj)) {
+    //     encode(sym, options);
+    //     encode(obj[sym], options);
+    //     //count += 1;
+    // }
+
+    for (let i = 0; i < syms.length; i += 1) {
+        const sym = syms[i];
+        encode(sym, options);
+        encode((obj as any)[sym], options);
+    }
+
+    return writer.getOffset();
+
+    // // type byte
+    // writer.pushByte(
+    //     ETypeByteCode.Object
+    //     | (0b0000_0111 & countBytes.length)
+    // );
+
+    // // length
+    // writer.pushBytes(countBytes);
+    // return writer.pushBytes(bodyWriter.getSubBytes(0));
 };

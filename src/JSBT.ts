@@ -19,8 +19,8 @@ export class JSBT {
         options.refs = {
             enabled: true,
         };
-        const result = encode(value, options);
-        return result;
+        encode(value, options);
+        return options.writer.toString();
     }
 
     static decode<T = any>(value: string | string[] | number[]): T {

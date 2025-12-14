@@ -2,14 +2,13 @@ import { ETypeByteCode } from '../enums/ETypeByteCode';
 import { MAX_7_BYTES_INTEGER } from '../constants';
 import { getBytesSizeForString } from '../converter/getBytesSizeForString';
 import { integerToBytes } from '../converter/integerToBytes';
-import { toChar } from '../utils/toChar';
+import { IDataWriter } from '../writer/IDataWriter';
+import { binaryStringToUint8Array } from '../utils/strings/binaryStringToUint8Array';
 
-export const encodeSymbol = (value: symbol): string => {
+export const encodeSymbol = (value: symbol, writer: IDataWriter): number => {
     if (typeof value !== 'symbol') {
         throw new Error(`Expecting "symbol" type, received "${String(value)}" (${typeof value})`);
     }
-
-    const msg: string[] = [];
 
     const key = Symbol.keyFor(value);
 
@@ -23,16 +22,19 @@ export const encodeSymbol = (value: symbol): string => {
     }
     const bytes = integerToBytes(bytesCount)
     // type byte
-    msg.push(toChar(ETypeByteCode.Symbol | (0b0000_0111 & bytes.length)));
+    writer.pushByte(ETypeByteCode.Symbol | (0b0000_0111 & bytes.length));
 
     if (bytes.length) {
         // length bytes
-        msg.push(toChar(...bytes));
+        writer.pushBytes(bytes);
     }
     if (key) {
+        const encoder = new TextEncoder();
+        const encodeBytes = encoder.encode(key);
+        //const encodeBytes = binaryStringToUint8Array(key);
         // encode bytes
-        msg.push(key);
+        writer.pushBytes(encodeBytes);
     }
 
-    return msg.join('');
+    return writer.getOffset();
 }

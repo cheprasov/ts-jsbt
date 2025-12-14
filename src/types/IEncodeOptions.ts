@@ -1,3 +1,4 @@
+import { ByteInternMap } from '../utils/map/ByteInternMap';
 import { IDataWriter } from '../writer/IDataWriter';
 
 export interface IRefsOptions {
@@ -6,13 +7,13 @@ export interface IRefsOptions {
 
 export interface IRefData {
     refId: number;
-    encodedRefLink: string | null;
-    encodedRefCopy: string | null;
+    encodedRefLink: Uint8Array | null;
+    encodedRefCopy: Uint8Array | null;
 }
 
 export interface IEncodingContext {
     refMap: Map<any, IRefData>;
-    refCopy: Map<string, IRefData>;
+    refCopy: ByteInternMap<IRefData>;
 }
 
 export interface IEncodeObjectOptions {

@@ -1,5 +1,7 @@
 import { IDataWriter } from './IDataWriter';
 
+const CHUNK = 0x8000; // 32k
+
 export class BytesWriter implements IDataWriter {
 
     protected _buffer = new Uint8Array(1024);
@@ -36,8 +38,21 @@ export class BytesWriter implements IDataWriter {
         return this._offset;
     }
 
+    setOffset(offset: number) {
+        this._offset = offset;
+    }
+
     finish(): Uint8Array {
         return this._buffer.subarray(0, this._offset);
+    }
+
+    toString(): string {
+        let result = '';
+        const bytes = this.finish();
+        for (let i = 0; i < bytes.length; i += CHUNK) {
+            result += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
+        }
+        return result;
     }
 
 }
