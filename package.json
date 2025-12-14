@@ -22,14 +22,16 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/cheprasov/ts-jsbt.git"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts --clean --target es2020 --out-dir dist",
+    "build": "tsup src/index.ts --format esm,cjs --dts --sourcemap --minify --clean --target es2020 --out-dir dist",
     "test": "jest",
     "lint": "eslint src",
     "check-esm": "node --input-type=module -e \"import { JSBT } from './dist/index.js'; console.log(JSBT)\"",

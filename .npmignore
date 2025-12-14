@@ -1,0 +1,23 @@
+# Source & tests
+src/
+benchmarks/
+src/_test/
+**/*.test.*
+**/*.spec.*
+
+# Tooling
+node_modules/
+.vscode/
+.idea/
+
+# Build tooling & configs
+tsconfig*.json
+webpack.config.*
+jest.config.*
+.eslintrc*
+.prettierrc*
+babel.config.*
+
+# Misc
+coverage/
+*.log

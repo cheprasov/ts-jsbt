@@ -59,6 +59,27 @@ describe('JSBT', () => {
             expect(JSBT.decode(JSBT.encode('Саша'))).toBe('Саша');
         });
 
+        it('should decode JSBT message correct', () => {
+            const dateNow = new Date();
+            const dateSmall = new Date(100);
+            const res = JSBT.decode(
+                JSBT.encode({
+                    now: dateNow,
+                    now2: dateNow,
+                    small: dateSmall,
+                    small2: dateSmall,
+                })
+            );
+            expect(res).toEqual({
+                now: dateNow,
+                now2: dateNow,
+                small: dateSmall,
+                small2: dateSmall,
+            });
+            expect(res.now).toBe(res.now2);
+            expect(res.small).toBe(res.small2);
+        });
+
         it('should decode JSBT message with refs correct', () => {
             expect(JSBT.decode(JSBT.encode(['Alex', 'Alex', 'Alex']))).toEqual(['Alex', 'Alex', 'Alex']);
             expect(JSBT.decode(JSBT.encode(['Alex', 'Foo', 'Alex', 'Foo']))).toEqual(['Alex', 'Foo', 'Alex', 'Foo']);
@@ -309,23 +330,25 @@ describe('JSBT', () => {
 
         it('should decode primitive object wrappers correct', async () => {
             const stream = new ByteStream();
-            delaySender(stream, [JSBT.encode([
-                new Boolean(true),
-                new Boolean(false),
-                new Number(42),
-                new Number(3.15),
-                new String('bla-bla'),
-                new Boolean(true),
-                new Boolean(false),
-                new Number(42),
-                new Number(3.15),
-                new String('bla-bla'),
-                new Boolean(true),
-                new Boolean(false),
-                new Number(42),
-                new Number(3.15),
-                new String('bla-bla'),
-            ])]);
+            delaySender(stream, [
+                JSBT.encode([
+                    new Boolean(true),
+                    new Boolean(false),
+                    new Number(42),
+                    new Number(3.15),
+                    new String('bla-bla'),
+                    new Boolean(true),
+                    new Boolean(false),
+                    new Number(42),
+                    new Number(3.15),
+                    new String('bla-bla'),
+                    new Boolean(true),
+                    new Boolean(false),
+                    new Number(42),
+                    new Number(3.15),
+                    new String('bla-bla'),
+                ]),
+            ]);
 
             expect(await JSBT.decodeStream(stream)).toEqual([
                 new Boolean(true),
