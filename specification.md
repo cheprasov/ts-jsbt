@@ -1,5 +1,5 @@
 # Specification JSBT v1.3.0
-JavaScript Byte Translation
+JavaScript Binary Transfer
 
 
 ## Structure
