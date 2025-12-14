@@ -1,7 +1,3 @@
-export interface IPrimitivesOptions {
-    objectWrappersAsPrimitiveValue: boolean;
-}
-
 export interface IRefsOptions {
     enabled: boolean;
 }
@@ -24,6 +20,5 @@ export interface IEncodeObjectOptions {
 export interface IEncodeOptions {
     context: IEncodingContext,
     refs: IRefsOptions;
-    primitives: IPrimitivesOptions;
     objects: IEncodeObjectOptions,
 }

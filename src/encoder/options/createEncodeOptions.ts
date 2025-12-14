@@ -9,9 +9,6 @@ export const createEncodeOptions = (): IEncodeOptions => {
             refMap: new Map(),
             refCopy: new Map(),
         },
-        primitives: {
-            objectWrappersAsPrimitiveValue: false,
-        },
         objects: {
             classInstanceConstructorNameKey: '__jsbtConstructorName',
         }

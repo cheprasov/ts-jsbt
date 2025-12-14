@@ -29,17 +29,11 @@ import { encodeUndefined } from './encodeUndefined';
 
 export const encode = (value: any, options: IEncodeOptions): string => {
     const context = options.context;
-    const isRefEnabled = options.refs?.enabled || false;
-
-    let val = value;
-
-    if (isPrimitiveObjectWrapper(value) && options.primitives.objectWrappersAsPrimitiveValue) {
-        val = value.valueOf(); // Primitive Object to Promitive Value
-    }
+    const isRefEnabled = options.refs.enabled || false;
 
     let refData: IRefData | null = null;
     if (isRefEnabled) {
-        refData = context.refMap.get(val) || null;
+        refData = context.refMap.get(value) || null;
         if (refData) {
             if (!refData.encodedRefLink) {
                 refData.encodedRefLink = encodeRef('link', refData.refId, options);
@@ -52,14 +46,14 @@ export const encode = (value: any, options: IEncodeOptions): string => {
                 encodedRefLink: null,
                 encodedRefCopy: null,
             };
-            context.refMap.set(val, refData);
+            context.refMap.set(value, refData);
         }
     }
 
     let result: string | null = null;
     let isRefAllowed: boolean = false;
 
-    const type = typeof val;
+    const type = typeof value;
     switch (type) {
         case 'undefined': {
             isRefAllowed = false;
@@ -68,99 +62,99 @@ export const encode = (value: any, options: IEncodeOptions): string => {
         }
         case 'boolean': {
             isRefAllowed = false;
-            result = encodeBoolean(val);
+            result = encodeBoolean(value);
             break;
         }
         case 'number': {
-            if (isInteger(val)) {
-                isRefAllowed = val > 255 || val < -255;
-                result = encodeInteger(val);
+            if (isInteger(value)) {
+                isRefAllowed = value > 255 || value < -255;
+                result = encodeInteger(value);
                 break;
             }
-            if (isFloat(val)) {
+            if (isFloat(value)) {
                 isRefAllowed = true;
-                result = encodeFloat(val);
+                result = encodeFloat(value);
                 break;
             }
-            if (Number.isNaN(val)) {
+            if (Number.isNaN(value)) {
                 isRefAllowed = false;
                 result = encodeNaN();
                 break;
             }
-            if (val === Infinity || val === -Infinity) {
+            if (value === Infinity || value === -Infinity) {
                 isRefAllowed = false;
-                result = encodeInfinity(val);
+                result = encodeInfinity(value);
                 break;
             }
             break;
         }
         case 'string': {
-            isRefAllowed = val.length > 2;
-            result = encodeString(val);
+            isRefAllowed = value.length > 2;
+            result = encodeString(value);
             break;
         }
         case 'object': {
-            if (val === null) {
+            if (value === null) {
                 isRefAllowed = false;
                 result = encodeNull();
                 break;
             }
-            if (Array.isArray(val)) {
+            if (Array.isArray(value)) {
                 isRefAllowed = true;
-                result = encodeArray(val, options);
+                result = encodeArray(value, options);
                 break;
             }
-            if (isObject(val)) {
+            if (isObject(value)) {
                 isRefAllowed = true;
-                result = encodeObject(val, options);
+                result = encodeObject(value, options);
                 break;
             }
-            if (isSet(val)) {
+            if (isSet(value)) {
                 isRefAllowed = true;
-                result = encodeSet(val, options);
+                result = encodeSet(value, options);
                 break;
             }
-            if (isMap(val)) {
+            if (isMap(value)) {
                 isRefAllowed = true;
-                result = encodeMap(val, options);
+                result = encodeMap(value, options);
                 break;
             }
-            if (isTypedArray(val)) {
+            if (isTypedArray(value)) {
                 isRefAllowed = true;
-                result = encodeTypedArray(val, options);
+                result = encodeTypedArray(value, options);
                 break;
             }
-            if (val instanceof Date) {
-                isRefAllowed = Math.abs(val.getTime()) > 255;
-                result = encodeDate(val, options);
+            if (value instanceof Date) {
+                isRefAllowed = true;
+                result = encodeDate(value, options);
                 break;
             }
-            if (isPrimitiveObjectWrapper(val)) {
+            if (isPrimitiveObjectWrapper(value)) {
                 isRefAllowed = true;
-                result = encodePrimitiveObjectWrapper(val, options);
+                result = encodePrimitiveObjectWrapper(value, options);
                 break;
             }
-            if (isClassInstance(val)) {
+            if (isClassInstance(value)) {
                 isRefAllowed = true;
-                result = encodeClassInstance(val, options);
+                result = encodeClassInstance(value, options);
                 break;
             }
             break;
         }
         case 'bigint': {
             isRefAllowed = true;
-            result = encodeBigInt(val);
+            result = encodeBigInt(value);
             break;
         }
         case 'symbol': {
             isRefAllowed = true;
-            result = encodeSymbol(val);
+            result = encodeSymbol(value);
             break;
         }
     }
 
     if (result === null) {
-        throw new Error(`Unsupported encoding value: "${val}", type: "${type}"`);
+        throw new Error(`Unsupported encoding value: "${value}", type: "${type}"`);
     }
 
     if (refData) {
@@ -175,7 +169,7 @@ export const encode = (value: any, options: IEncodeOptions): string => {
                 context.refCopy.set(result, refData);
             }
         } else {
-            context.refMap.delete(val);
+            context.refMap.delete(value);
         }
     }
 

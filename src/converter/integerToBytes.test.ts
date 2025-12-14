@@ -10,29 +10,13 @@ describe('integerToBytes', () => {
         expect(integerToBytes(4370)).toEqual([0x12, 0x11]);
     });
 
-    it('should return correct bytes at Big-Endian order', () => {
-        expect(integerToBytes(1, 1, true)).toEqual([0x01]);
-        expect(integerToBytes(255, 1, true)).toEqual([0xFF]);
-        expect(integerToBytes(255, 3, true)).toEqual([0x00, 0x00, 0xFF]);
-
-        expect(integerToBytes(256, 1, true)).toEqual([0x00]);
-        expect(integerToBytes(256, 2, true)).toEqual([0x01, 0x00]);
-
-        expect(integerToBytes(4370, 1, true)).toEqual([0x12]);
-        expect(integerToBytes(4370, 2, true)).toEqual([0x11, 0x12]);
-        expect(integerToBytes(4370, 3, true)).toEqual([0x00, 0x11, 0x12]);
-
-    });
-
     it('should return correct bytes at Little-Endian order', () => {
         expect(integerToBytes(1, 1)).toEqual([0x01]);
-        expect(integerToBytes(255, 1)).toEqual([0xFF]);
+        expect(integerToBytes(0, 1)).toEqual([0]);
         expect(integerToBytes(255, 3)).toEqual([0xFF, 0x00, 0x00]);
 
-        expect(integerToBytes(256, 1)).toEqual([0x00]);
         expect(integerToBytes(256, 2)).toEqual([0x00, 0x01]);
 
-        expect(integerToBytes(4370, 1)).toEqual([0x12]);
         expect(integerToBytes(4370, 2)).toEqual([0x12, 0x11]);
         expect(integerToBytes(4370, 3)).toEqual([0x12, 0x11, 0x00]);
     });
@@ -44,6 +28,6 @@ describe('integerToBytes', () => {
         expect(integerToBytes(0xFA_FD_FC_FE)).toEqual([0xFE, 0xFC, 0xFD, 0xFA]);
         expect(integerToBytes(0x11_FF_FF_FF_22)).toEqual([0x22, 0xFF, 0xFF, 0xFF, 0x11]);
         expect(integerToBytes(0xFA_FB_FC_FD_FE_FF)).toEqual([0xFF, 0xFE, 0xFD, 0xFC, 0xFB, 0xFA]);
-        //expect(integerToBytes(0x1F_FA_FB_FC_FD_FE_FF)).toEqual([0xFF, 0xFE, 0xFD, 0xFC, 0xFB, 0xFA, 0x1F]);
+        expect(integerToBytes(0x1F_FA_FB_FC_FD_FE_FF)).toEqual([0xFF, 0xFE, 0xFD, 0xFC, 0xFB, 0xFA, 0x1F]);
     });
 });

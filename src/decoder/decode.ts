@@ -113,7 +113,7 @@ export const decode = (typeByte: number | null, stream: ByteStream, options: IDe
         case ETypeByteCode.Date: {
             result = decodeDate(typeByte, stream);
             isResultReceived = true;
-            isRefAllowed = Math.abs(result.getTime()) > 255;
+            isRefAllowed = true;
             break;
         }
         case ETypeByteCode.Instruction: {

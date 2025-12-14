@@ -14,44 +14,38 @@ export const encodeObject = (obj: TObject, options: IEncodeOptions): string => {
         throw new Error(`Expecting "object" type, received "${obj}" (${typeof obj})`);
     }
 
-    const msgBody: string[] = [];
-    let count = 0;
-
-    for (const key in obj) {
-        if (!obj.hasOwnProperty(key)) {
-            continue;
-        }
-        msgBody.push(encode(key, options));
-        msgBody.push(encode(obj[key], options));
-        count += 1;
-    }
-
-    for (const sym of Object.getOwnPropertySymbols(obj)) {
-        msgBody.push(encode(sym, options));
-        msgBody.push(encode(obj[sym], options));
-        count += 1;
-    }
+    const keys = Object.keys(obj);
+    const syms = Object.getOwnPropertySymbols(obj);
+    let count = keys.length + syms.length;
 
     if (count === 0) {
         return EMPTY_OBJECT_BYTE_CHAR;
     }
-
     if (count > MAX_7_BYTES_INTEGER) {
         throw new Error(`Provided object has too many props, limit ${MAX_7_BYTES_INTEGER}, received ${count}`);
     }
 
-    const msgHeaders: string[] = [];
     const countBytes = integerToBytes(count);
-
+    const msg: string[] = [];
 
     // type byte
-    msgHeaders.push(toChar(
+    msg.push(toChar(
         ETypeByteCode.Object
         | (0b0000_0111 & countBytes.length)
     ));
 
     // length
-    msgHeaders.push(toChar(...countBytes));
+    msg.push(toChar(...countBytes));
 
-    return msgHeaders.join('') + msgBody.join('');
+    for (const key of keys) {
+        msg.push(encode(key, options));
+        msg.push(encode(obj[key], options));
+    }
+
+    for (const sym of syms) {
+        msg.push(encode(sym, options));
+        msg.push(encode(obj[sym], options));
+    }
+
+    return msg.join('');
 };

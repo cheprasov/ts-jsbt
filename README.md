@@ -35,8 +35,7 @@ JSBT is ideal for **Node ↔ Node**, **Node ↔ Browser**, **Browser ↔ Browser
 10. [FAQ: When to use JSBT?](#faq-when-to-use-jsbt)
 11. [Security considerations](#security-considerations)
 12. [Contributing](#contributing)
-13. [Roadmap](#roadmap)
-14. [License](#license)
+13. [License](#license)
 
 ---
 
@@ -267,7 +266,7 @@ JSBT is **not** optimized for trivial objects – JSON / Protobuf / MessagePack 
 | Protobuf  | 1017         | 3.29           | 1.95           |
 | MsgPack   | 1083         | 2.31           | 1.58           |
 | CBOR      | 1090         | 1.33           | 1.56           |
-| **JSBT**  | 1398         | 69.46          | 20.83          |
+| **JSBT**  | 1398         | 31.51          | 20.83          |
 
 > If your data is just simple JSON objects, stay with JSON or a standard binary format.  
 > JSBT is built for more complex structures.
@@ -322,9 +321,9 @@ Size comparison (single run):
 Size comparison (lower is better)
 
 JSON      ████████████████████████████████████████ 4.46 MB
-Protobuf  ████████████████████                    2.96 MB
-MsgPack   ███████████████████████                 3.54 MB
-CBOR      ████████████████████████                3.60 MB
+Protobuf  ████████████████████                     2.96 MB
+MsgPack   ███████████████████████                  3.54 MB
+CBOR      ████████████████████████                 3.60 MB
 JSBT      █                                        0.06 MB
 ```
 
@@ -339,10 +338,10 @@ JSBT deduplicates repeated structures and values and models the data as a graph 
 
 Performance (JSBT only, 100 iterations):
 
-- One object size: **437 bytes**
-- 10,000 objects size: **61,911 bytes**  
-- Encode: **≈ 1,029,000 µs/op** (synthetic heavy test)  
-- Decode: **≈ 43,000 µs/op**
+- One object size: **0.43 kb**
+- 10,000 objects size: ≈ **60.5 kb**  
+- Encode: **≈ 1,029 ms/op** (synthetic heavy test)  
+- Decode: **≈ 43 ms/op**
 
 > For large, repetitive datasets, JSBT can reduce size by **orders of magnitude**  
 > compared to formats that do not exploit structural repetition.
@@ -648,22 +647,6 @@ Something does not work as expected? Found a bug? Want to add a feature?
 - Open a Pull Request
 
 Contributions, issue reports, and benchmark results are all very welcome.
-
----
-
-## Roadmap
-
-### v1.4.0 — Native bytes output (modern runtimes)
-Goal: enable **Uint8Array/Buffer output** for WebSocket binary frames, Node streams, and zero-copy worker transfers.
-
-- [ ] Add `JSBT.encodeToBytes(value): Uint8Array`
-- [ ] Extend decode input support: `JSBT.decode(input: string | Uint8Array | ArrayBuffer)`
-- [ ] Keep `JSBT.encode(value): string` fully backward compatible
-- [ ] No format/spec changes (wire format remains the same)
-
-Notes:
-- Old browsers without `Uint8Array` keep using the current string-based path.
-- Modern runtimes can opt into bytes output for better performance & interoperability.
 
 ---
 
