@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./benchmarks/dist",
+    "module": "node16",
+    "target": "ES2022",
+    "sourceMap": true
+  },
+  "include": ["benchmarks/**/*.ts"]
+}
