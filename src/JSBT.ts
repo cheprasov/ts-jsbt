@@ -16,9 +16,7 @@ export class JSBT {
 
     static encode(value: any): string {
         const options = createEncodeOptions();
-        options.refs = {
-            enabled: true,
-        };
+        options.refs.enabled = true;
         const result = encode(value, options);
         return result;
     }

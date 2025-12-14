@@ -267,7 +267,7 @@ JSBT is **not** optimized for trivial objects – JSON / Protobuf / MessagePack 
 | Protobuf  | 1017         | 3.29           | 1.95           |
 | MsgPack   | 1083         | 2.31           | 1.58           |
 | CBOR      | 1090         | 1.33           | 1.56           |
-| **JSBT**  | 1398         | 69.46          | 20.83          |
+| **JSBT**  | 1398         | 31.51          | 20.83          |
 
 > If your data is just simple JSON objects, stay with JSON or a standard binary format.  
 > JSBT is built for more complex structures.
@@ -322,9 +322,9 @@ Size comparison (single run):
 Size comparison (lower is better)
 
 JSON      ████████████████████████████████████████ 4.46 MB
-Protobuf  ████████████████████                    2.96 MB
-MsgPack   ███████████████████████                 3.54 MB
-CBOR      ████████████████████████                3.60 MB
+Protobuf  ████████████████████                     2.96 MB
+MsgPack   ███████████████████████                  3.54 MB
+CBOR      ████████████████████████                 3.60 MB
 JSBT      █                                        0.06 MB
 ```
 
