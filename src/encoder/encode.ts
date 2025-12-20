@@ -160,9 +160,6 @@ export const encode = (value: any, options: IEncodeOptions): string => {
     }
 
     if (result === null) {
-        console.log(value, type
-
-        );
         throw new Error(`Unsupported encoding value: "${String(value)}", type: "${String(type)}"`);
     }
 
