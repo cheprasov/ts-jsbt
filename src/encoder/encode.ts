@@ -3,7 +3,8 @@ import { isClassInstance } from '../utils/vars/isClassInstance';
 import { isFloat } from '../utils/vars/isFloat';
 import { isInteger } from '../utils/vars/isInteger';
 import { isMap } from '../utils/vars/isMap';
-import { isObject } from '../utils/vars/isObject';
+import { isNullProtoObject } from '../utils/vars/isNullProtoObject';
+import { isPlainObject } from '../utils/vars/isPlainObject';
 import { isPrimitiveObjectWrapper } from '../utils/vars/isPrimitiveObjectWrapper';
 import { isSet } from '../utils/vars/isSet';
 import { isTypedArray } from '../utils/vars/isTypedArray';
@@ -51,120 +52,131 @@ export const encode = (value: any, options: IEncodeOptions): string => {
     }
 
     let result: string | null = null;
-    let isRefAllowed: boolean = false;
+    let isRefCopyAllowed: boolean = false;
 
     const type = typeof value;
     switch (type) {
         case 'undefined': {
-            isRefAllowed = false;
+            isRefCopyAllowed = false;
             result = encodeUndefined();
             break;
         }
         case 'boolean': {
-            isRefAllowed = false;
+            isRefCopyAllowed = false;
             result = encodeBoolean(value);
             break;
         }
         case 'number': {
             if (isInteger(value)) {
-                isRefAllowed = value > 255 || value < -255;
+                isRefCopyAllowed = value > 255 || value < -255;
                 result = encodeInteger(value);
                 break;
             }
             if (isFloat(value)) {
-                isRefAllowed = true;
+                isRefCopyAllowed = true;
                 result = encodeFloat(value);
                 break;
             }
             if (Number.isNaN(value)) {
-                isRefAllowed = false;
+                isRefCopyAllowed = false;
                 result = encodeNaN();
                 break;
             }
             if (value === Infinity || value === -Infinity) {
-                isRefAllowed = false;
+                isRefCopyAllowed = false;
                 result = encodeInfinity(value);
                 break;
             }
             break;
         }
         case 'string': {
-            isRefAllowed = value.length > 2;
+            isRefCopyAllowed = value.length > 2;
             result = encodeString(value);
             break;
         }
         case 'object': {
             if (value === null) {
-                isRefAllowed = false;
+                isRefCopyAllowed = false;
                 result = encodeNull();
                 break;
             }
             if (Array.isArray(value)) {
-                isRefAllowed = true;
+                isRefCopyAllowed = true;
                 result = encodeArray(value, options);
                 break;
             }
-            if (isObject(value)) {
-                isRefAllowed = true;
+            if (isPlainObject(value)) {
+                isRefCopyAllowed = true;
                 result = encodeObject(value, options);
                 break;
             }
+            // if (isNullProtoObject(value)) {
+            //     isRefCopyAllowed = true;
+            //     result = encodeObject(value, options);
+            //     break;
+            // }
             if (isSet(value)) {
-                isRefAllowed = true;
+                isRefCopyAllowed = true;
                 result = encodeSet(value, options);
                 break;
             }
             if (isMap(value)) {
-                isRefAllowed = true;
+                isRefCopyAllowed = true;
                 result = encodeMap(value, options);
                 break;
             }
             if (isTypedArray(value)) {
-                isRefAllowed = true;
+                isRefCopyAllowed = true;
                 result = encodeTypedArray(value, options);
                 break;
             }
             if (value instanceof Date) {
-                isRefAllowed = true;
+                isRefCopyAllowed = true;
                 result = encodeDate(value, options);
                 break;
             }
             if (isPrimitiveObjectWrapper(value)) {
-                isRefAllowed = true;
+                isRefCopyAllowed = true;
                 result = encodePrimitiveObjectWrapper(value, options);
                 break;
             }
             if (isClassInstance(value)) {
-                isRefAllowed = true;
+                isRefCopyAllowed = true;
                 result = encodeClassInstance(value, options);
                 break;
             }
             break;
         }
         case 'bigint': {
-            isRefAllowed = true;
+            isRefCopyAllowed = true;
             result = encodeBigInt(value);
             break;
         }
         case 'symbol': {
-            isRefAllowed = true;
+            isRefCopyAllowed = true;
             result = encodeSymbol(value);
             break;
         }
     }
 
     if (result === null) {
-        throw new Error(`Unsupported encoding value: "${value}", type: "${type}"`);
+        console.log(value, type
+
+        );
+        throw new Error(`Unsupported encoding value: "${String(value)}", type: "${String(type)}"`);
     }
 
     if (refData) {
-        if (isRefAllowed) {
+        if (isRefCopyAllowed) {
             const refCopy = context.refCopy.get(result);
             if (refCopy) {
                 if (!refData.encodedRefCopy) {
                     refData.encodedRefCopy = encodeRef('copy', refCopy.refId, options);
                 }
-                return refData.encodedRefCopy;
+                // Using copy refs only if it uses less bytes
+                if (refData.encodedRefCopy && refData.encodedRefCopy.length < result.length) {
+                    return refData.encodedRefCopy;
+                }
             } else {
                 context.refCopy.set(result, refData);
             }
