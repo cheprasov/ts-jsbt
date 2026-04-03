@@ -35,7 +35,8 @@ JSBT is ideal for **Node ↔ Node**, **Node ↔ Browser**, **Browser ↔ Browser
 10. [FAQ: When to use JSBT?](#faq-when-to-use-jsbt)
 11. [Security considerations](#security-considerations)
 12. [Contributing](#contributing)
-13. [License](#license)
+13. [Playground](#playground)
+14. [License](#license)
 
 ---
 
@@ -636,6 +637,10 @@ This document is the reference if you want to implement JSBT in another language
 - Unexpected class names produce plain objects
 
 ---
+
+## Playground
+
+https://cheprasov.github.io/ts-jsbt-playground/
 
 ## Contributing
 
