@@ -45,7 +45,7 @@ describe('JSBT', () => {
                     // userD key // refID 9
                     '00010001 00000101 01110101 01110011 01100101 01110010 01000100 ' +
                     // link ref to userC object
-                    '10110001 00001000'
+                    '10110001 00001000',
             );
         });
     });
@@ -68,7 +68,7 @@ describe('JSBT', () => {
                     now2: dateNow,
                     small: dateSmall,
                     small2: dateSmall,
-                })
+                }),
             );
             expect(res).toEqual({
                 now: dateNow,
@@ -181,6 +181,19 @@ describe('JSBT', () => {
             expect(res).toEqual(birthdays);
         });
 
+        it('should encode JSBT ref without empty objects values corrects', () => {
+            const res = JSBT.encode([[], [], [], {}, {}, {}]);
+            expectAsBinaryString(res).toBe('01010001 00000110 01010000 01010000 01010000 01110000 01110000 01110000');
+        });
+
+        it('should decode empty ref corrects', () => {
+            const binary =
+                '01010001 00000110 01010000 10111001 00000001 10111001 00000001 01110000 10111001 00000100 10111001 00000100';
+            const payload = String.fromCharCode(...binary.split(' ').map((bin) => parseInt(bin, 2)));
+            const res = JSBT.decode(payload);
+            expect(res).toEqual([[], [], [], {}, {}, {}]);
+        });
+
         it('should decode primitive object wrappers correct', () => {
             expect(
                 JSBT.decode(
@@ -200,8 +213,8 @@ describe('JSBT', () => {
                         new Number(42),
                         new Number(3.15),
                         new String('bla-bla'),
-                    ])
-                )
+                    ]),
+                ),
             ).toEqual([
                 new Boolean(true),
                 new Boolean(false),

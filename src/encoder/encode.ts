@@ -37,7 +37,7 @@ export const encode = (value: any, options: IEncodeOptions): string => {
         refData = context.refMap.get(value) || null;
         if (refData) {
             if (!refData.encodedRefLink) {
-                refData.encodedRefLink = encodeRef('link', refData.refId, options);
+                refData.encodedRefLink = encodeRef(false, refData.refId, options);
             }
             return refData.encodedRefLink;
         } else {
@@ -165,15 +165,19 @@ export const encode = (value: any, options: IEncodeOptions): string => {
 
     if (refData) {
         if (isRefCopyAllowed) {
+            if (result.length <= 2) {
+                return result;
+            }
             const refCopy = context.refCopy.get(result);
             if (refCopy) {
                 if (!refData.encodedRefCopy) {
-                    refData.encodedRefCopy = encodeRef('copy', refCopy.refId, options);
+                    refData.encodedRefCopy = encodeRef(true, refCopy.refId, options);
                 }
                 // Using copy refs only if it uses less bytes
                 if (refData.encodedRefCopy && refData.encodedRefCopy.length < result.length) {
                     return refData.encodedRefCopy;
                 }
+                return result;
             } else {
                 context.refCopy.set(result, refData);
             }
