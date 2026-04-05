@@ -1,4 +1,4 @@
-# Specification JSBT v1.3.0
+# Specification JSBT v1
 JavaScript Binary Transfer
 
 

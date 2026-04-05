@@ -1,6 +1,6 @@
 {
   "name": "@cheprasov/jsbt",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "author": "Alexander Cheprasov",
   "description": "JavaScript Binary Transfer (JSBT) – graph-aware binary serialization for JavaScript runtimes.",
   "keywords": [

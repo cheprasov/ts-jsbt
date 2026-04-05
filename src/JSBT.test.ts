@@ -3,6 +3,68 @@ import { delaySender } from './_tests/utils/delaySender';
 import { expectAsBinaryString } from './_tests/utils/expectAsBinaryString';
 import ByteStream from './reader/ByteStream';
 
+const testObject = {
+    constants: {
+        true: true,
+        false: false,
+        null: null,
+        undefined: undefined,
+        NaN: NaN,
+        PosInfinity: Infinity,
+        NegInfinity: -Infinity,
+    },
+    strings: {
+        user: 'Alex',
+        profession: 'IT',
+        country: '🇬🇧',
+    },
+    integers: [0, -0, 1, -1, 256, -256, 12_345_678, -12_345_678],
+    floats: [10.1, 17.34, 3.1415, -3.1415, 0.335],
+    bigInts: [0n, 10n, -13353n, 132131231231235535525525325235235235235235n, -1343242345225252582365862385628653n],
+    arrays: [
+        [1, 2, 3],
+        [4, 5, 6, 7, 8],
+        [, , , , , 10],
+    ],
+    typedArrays: [
+        new Uint16Array([1, 2, 3, 256, 1267, 134255]),
+        new Int32Array([1, 2, -3, -256, 1267, -134255]),
+        new Uint8Array([1, 2, 3, 255]),
+    ],
+    objects: {
+        foo: {
+            bar: {
+                baz: 42,
+                bar: 43,
+                foo: 17,
+            },
+        },
+    },
+    sets: [new Set(['foo', 'baz', 'bar']), new Set(['1', '2', 1, 2])],
+    maps: [
+        new Map([
+            ['foo', 42],
+            ['baz', 43],
+            ['bar', 17],
+        ]),
+        new Map<any, any>([
+            [{}, 'foo'],
+            [[], 'bar'],
+            [true, 'baz'],
+        ]),
+    ],
+    symbols: {
+        [Symbol.for('foo')]: Symbol.for('42'),
+        [Symbol.for('bar')]: Symbol.for('12'),
+        [Symbol.for('baz')]: Symbol.for('111'),
+    },
+    dates: {
+        today: new Date('2023-09-26T21:37:00Z'),
+        tomorrow: new Date('2023-09-27T21:37:00Z'),
+        yesterday: new Date('2023-09-25T21:37:00Z'),
+    },
+} as const;
+
 describe('JSBT', () => {
     describe('encode', () => {
         it('should encode value correctly', () => {
@@ -45,8 +107,27 @@ describe('JSBT', () => {
                     // userD key // refID 9
                     '00010001 00000101 01110101 01110011 01100101 01110010 01000100 ' +
                     // link ref to userC object
-                    '10110001 00001000'
+                    '10110001 00001000',
             );
+        });
+
+        it('should encode JSBT ref without empty objects values correct', () => {
+            const res = JSBT.encode([[], [], [], {}, {}, {}]);
+            expectAsBinaryString(res).toBe('01010001 00000110 01010000 01010000 01010000 01110000 01110000 01110000');
+        });
+    });
+
+    describe('round-trip', () => {
+        it('should encode and decode message', async () => {
+            const enc = JSBT.encode(testObject);
+            const dec = JSBT.decode(enc);
+            expect(dec).toEqual(testObject);
+        });
+
+        it('should encode and decode binary message correct', async () => {
+            const enc = JSBT.encode(JSBT.encode(JSBT.encode(testObject)));
+            const dec = JSBT.decode(JSBT.decode(JSBT.decode(enc)));
+            expect(dec).toEqual(testObject);
         });
     });
 
@@ -68,7 +149,7 @@ describe('JSBT', () => {
                     now2: dateNow,
                     small: dateSmall,
                     small2: dateSmall,
-                })
+                }),
             );
             expect(res).toEqual({
                 now: dateNow,
@@ -181,6 +262,14 @@ describe('JSBT', () => {
             expect(res).toEqual(birthdays);
         });
 
+        it('should decode empty ref correct', () => {
+            const binary =
+                '01010001 00000110 01010000 10111001 00000001 10111001 00000001 01110000 10111001 00000100 10111001 00000100';
+            const payload = String.fromCharCode(...binary.split(' ').map((bin) => parseInt(bin, 2)));
+            const res = JSBT.decode(payload);
+            expect(res).toEqual([[], [], [], {}, {}, {}]);
+        });
+
         it('should decode primitive object wrappers correct', () => {
             expect(
                 JSBT.decode(
@@ -200,8 +289,8 @@ describe('JSBT', () => {
                         new Number(42),
                         new Number(3.15),
                         new String('bla-bla'),
-                    ])
-                )
+                    ]),
+                ),
             ).toEqual([
                 new Boolean(true),
                 new Boolean(false),
@@ -224,79 +313,11 @@ describe('JSBT', () => {
 
     describe('decodeStream', () => {
         it('should decode stream message', async () => {
-            const obj = {
-                constants: {
-                    true: true,
-                    false: false,
-                    null: null,
-                    undefined: undefined,
-                    NaN: NaN,
-                    PosInfinity: Infinity,
-                    NegInfinity: -Infinity,
-                },
-                strings: {
-                    user: 'Alex',
-                    profession: 'IT',
-                    country: '🇬🇧',
-                },
-                integers: [0, -0, 1, -1, 256, -256, 12_345_678, -12_345_678],
-                floats: [10.1, 17.34, 3.1415, -3.1415, 0.335],
-                bigInts: [
-                    0n,
-                    10n,
-                    -13353n,
-                    132131231231235535525525325235235235235235n,
-                    -1343242345225252582365862385628653n,
-                ],
-                arrays: [
-                    [1, 2, 3],
-                    [4, 5, 6, 7, 8],
-                    [, , , , , 10],
-                ],
-                typedArrays: [
-                    new Uint16Array([1, 2, 3, 256, 1267, 134255]),
-                    new Int32Array([1, 2, -3, -256, 1267, -134255]),
-                    new Uint8Array([1, 2, 3, 255]),
-                ],
-                objects: {
-                    foo: {
-                        bar: {
-                            baz: 42,
-                            bar: 43,
-                            foo: 17,
-                        },
-                    },
-                },
-                sets: [new Set(['foo', 'baz', 'bar']), new Set(['1', '2', 1, 2])],
-                maps: [
-                    new Map([
-                        ['foo', 42],
-                        ['baz', 43],
-                        ['bar', 17],
-                    ]),
-                    new Map<any, any>([
-                        [{}, 'foo'],
-                        [[], 'bar'],
-                        [true, 'baz'],
-                    ]),
-                ],
-                symbols: {
-                    [Symbol.for('foo')]: Symbol.for('42'),
-                    [Symbol.for('bar')]: Symbol.for('12'),
-                    [Symbol.for('baz')]: Symbol.for('111'),
-                },
-                dates: {
-                    today: new Date('2023-09-26T21:37:00Z'),
-                    tomorrow: new Date('2023-09-27T21:37:00Z'),
-                    yesterday: new Date('2023-09-25T21:37:00Z'),
-                },
-            };
-
             const stream = new ByteStream();
-            delaySender(stream, [JSBT.encode(obj)]);
+            delaySender(stream, [JSBT.encode(testObject)]);
 
             const res = await JSBT.decodeStream(stream);
-            expect(res).toEqual(obj);
+            expect(res).toEqual(testObject);
         });
 
         it('should allow to decode several joined messages', async () => {
